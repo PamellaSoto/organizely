@@ -56,7 +56,7 @@ The main goal of this project is to offer a **clear, structured, and visually in
 ## Prototype (Figma)
 
 
-![Figma print](image.jpg)
+![Figma print](/images/figma.png)
 > The first design stage was a basic prototype in Figma, used to establish the creative direction, colors, and component states. ![See here.](https://www.figma.com/design/OEGRgzXmXJx083vToIWtHg/Organize.ly?node-id=0-1&t=oCT3afQizhvm1F3f-1)
 
 ## Architecture Overview
