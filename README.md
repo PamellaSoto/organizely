@@ -13,8 +13,7 @@
 5. [Architecture Overview](#architecture-overview)  
 6. [API Integration](#api-integration)  
 7. [REST API Documentation](#rest-api-documentation)  
-9. [How to Use](#how-to-use)  
-11. [Contact](#contact)  
+9. [How to Use](#how-to-use)
 
 
 ## About the Project
@@ -44,12 +43,12 @@ The main goal of this project is to offer a **clear, structured, and visually in
 ## Technologies Used
 
 | Layer | Technology |
-|--------|-------------|
-| Backend | **Java**, **Spring Boot**, **JPA/Hibernate**, **MySQL** |
-| Frontend | **React**, **Tailwind CSS**, **Axios** |
-| Internationalization | **i18n (coming soon)** |
+|:------|:------------|
+| Backend | **Java**, **Spring Boot**, **JPA/Hibernate**, **PostgreSQL** |
+| Frontend | **React**, **Tailwind CSS**, **Axios**, **Yup** |
+| Internationalization | **i18n** |
 | API Documentation | **Swagger** |
-| Deployment | **Render** |
+| Deployment | **Render** (or Railway) |
 
 
 ## Prototype (Figma)
@@ -84,8 +83,28 @@ The main goal of this project is to offer a **clear, structured, and visually in
 
 ## REST API Documentation
 
+### Tasks API
+
+| Method | Path | Description |	Body |
+|:-------|:-----|:------------|:-----|
+| GET | /api/tasks | Get all tasks | — |
+| POST | /api/tasks | Create a task | { "desc": "..." } |
+| PUT | /api/tasks/{id} | Update task | { "desc": "...", "completed": true } |
+| DELETE | /api/tasks/{id} | Delete task | — |
 
 
+### Auth API
+
+| Method | Path | Description |	Body |
+|:-------|:-----|:------------|:-----|
+| POST | /api/auth/register | Create a new account | { "username": "user", "email": "a@b.com", "password": "1234" } |
+| POST | /api/auth/login | Log in and get token | { "username": "user", "password": "1234" } |
+> Response example:
+```
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI..."
+}
+```
 
 ## How to Use
 
