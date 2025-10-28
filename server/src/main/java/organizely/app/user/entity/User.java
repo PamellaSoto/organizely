@@ -19,14 +19,16 @@ import lombok.Data;
 public class User {
   @Id
   @GeneratedValue(strategy=GenerationType.UUID)
+  @Column(name= "ID")
   private UUID id;
 
   @Column(length = 100)
-  private String fullName;
+  private String name;
 
   @Column(unique = true, length = 50)
   private String username;
 
+  @Column(name = "password_hash")
   private String password;
 
   @CreationTimestamp

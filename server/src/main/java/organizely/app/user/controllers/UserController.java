@@ -30,7 +30,7 @@ public class UserController {
   @Autowired
   public IUserRepository userRepository;
 
-  // creating a new user account
+  // create a new user account
   @PostMapping("/auth/register")
   public ResponseEntity<Object> register(@RequestBody User user) {
     if (!this.userService.isUsernameAvailable(user)) {
@@ -39,7 +39,7 @@ public class UserController {
     }
     this.userService.saveUser(user);
     return ResponseEntity.status(HttpStatus.OK)
-                         .body("New account registered. Username: " + user.getUsername());
+                         .body("New account registered. Username: " + user.getUsername() + ".");
   }
 
   // login to account and generate a token
@@ -62,30 +62,30 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(users);
   }
 
-  // update user by id
+  // update user
   @PutMapping("/users/{id}/edit")
   public ResponseEntity<Object> updateUser(@PathVariable("id") String userId, @RequestBody RequestUserDTO userDTO) {
     var existingUser = this.userService.findUserById(userId);
     if (existingUser == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                           .body("User not found");
+                           .body("User not found.");
     }
     this.userService.updateUserData(userDTO, existingUser);
     return ResponseEntity.status(HttpStatus.OK)
-                                .body("User updated");
+                                .body("User updated.");
   }
 
-  // delete user by id
+  // delete user
   @DeleteMapping("/users/{id}/delete")
   public ResponseEntity<Object> deleteUser(@PathVariable("id") String userId) {
     var existingUser = this.userService.findUserById(userId);
     if (existingUser == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                           .body("User not found");
+                           .body("User not found.");
     }
     this.userRepository.deleteById(UUID.fromString(userId));
     return ResponseEntity.status(HttpStatus.OK)
-                                .body("User deleted");
+                                .body("User deleted.");
   }
   
 }

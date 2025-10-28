@@ -37,7 +37,7 @@ public class UserService {
     this.userRepository.save(user);
   }
 
-  // find user
+  // fetch user
   public User findUserById(String userId) {
     var userResult = this.userRepository.findById(UUID.fromString(userId));
     if (userResult.isEmpty()) {
@@ -50,11 +50,13 @@ public class UserService {
   // update account data
   public void updateUserData(RequestUserDTO updatedUserData, User existingUser) {
     if (updatedUserData.getFullName() != null && !updatedUserData.getFullName().isBlank()) {
-      existingUser.setFullName(updatedUserData.getFullName());
+      existingUser.setName(updatedUserData.getFullName());
     }
+    
     if (updatedUserData.getUsername() != null && !updatedUserData.getUsername().isBlank()) {
       existingUser.setUsername(updatedUserData.getUsername());
     }
+
     if (updatedUserData.getPassword() != null && !updatedUserData.getPassword().isBlank()) {
       existingUser.setPassword(createPasswordHash(updatedUserData.getPassword()));
     }
@@ -70,7 +72,7 @@ public class UserService {
     for(User user : users) {
       ResponseUserDTO dto = new ResponseUserDTO(
                 user.getId(),
-                user.getFullName(),
+                user.getName(),
                 user.getUsername()
         );
       userDTOList.add(dto);
