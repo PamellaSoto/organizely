@@ -1,12 +1,12 @@
-const TaskContainer = ({ children, title }) => (
-  <div className="bg-white rounded-xl p-4 flex flex-col justify-between w-full h-full">
-    <div>
-      <h3>{title}</h3>
+const TaskContainer = ({ children, title }) => {
+  return (
+    <div className="flex flex-col bg-white rounded-lg p-4 h-full">
+      <h2 className="text-xl   font-semibold mb-4">{title}</h2>
+      <div className="flex-1 overflow-y-auto">
+        {children}
+      </div>
     </div>
-    <div className="mt-4 flex-1 overflow-auto">
-      {children}
-    </div>
-  </div>
-);
+  );
+};
 
 export default TaskContainer;
