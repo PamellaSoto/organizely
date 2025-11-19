@@ -2,37 +2,29 @@ import { useState } from "react";
 import { HiCheck } from "react-icons/hi";
 import { HiPencil } from "react-icons/hi2";
 
-const priorityColors = {
-  High: "bg-green-200 text-green-700",
-  Medium: "bg-yellow-200 text-yellow-700",
-  Low: "bg-orange-200 text-orange-700",
-};
-
 const TaskItem = ({
   description,
   isCompleted = false,
-  priority,
+  priority = 0,
   categories = [],
   onToggleComplete,
-  onUpdate,
+  onOpenEdit,
 }) => {
   const [hovered, setHovered] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(description);
 
   return (
     <div
       className={[
         "rounded-xl p-3 transition-all cursor-pointer flex flex-col gap-1 relative border",
-        hovered
-          ? "border-tblue"
-          : "border-tlightgray",
-        isCompleted
-          ? "line-through opacity-60 saturate-0"
-          : "",
+        hovered ? "border-tblue" : "border-tlightgray",
+        isCompleted ? "line-through opacity-60 saturate-0" : "",
       ].join(" ")}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpenEdit?.();
+      }}
     >
       <div className="flex items-center">
         {/* checkbox */}
@@ -43,42 +35,22 @@ const TaskItem = ({
           }}
           className={[
             "w-4 h-4 rounded-full border flex items-center justify-center transition-all duration-300 absolute left-3 top-3",
-            isCompleted
-              ? "bg-tgray text-white"
-              : "border-tlightgray",
+            hovered ? "bg-blue-500 text-white" : "opacity-0",
           ].join(" ")}
         >
-          {isCompleted && <HiCheck size={16} className="p-0.5" />}
+          <HiCheck size={16} className="p-0.5" />
         </div>
 
-        {/* task description */}
-        {!isEditing ? (
-          <h3
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditing(true);
-            }}
-            className={[
-              "ml-7 transition-all duration-300",
-              isCompleted ? "line-through" : "",
-            ].join(" ")}
-          >
-            {text}
-          </h3>
-        ) : (
-          <input
-            autoFocus
-            className="ml-7 text-sm w-full border-b outline-none pb-1"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onBlur={() => {
-              setIsEditing(false);
-              onUpdate?.(text);
-            }}
-          />
-        )}
+        {/* task description (opens modal on click) */}
+        <h3
+          className={[
+            "ml-7 transition-all duration-300",
+            isCompleted ? "line-through opacity-60" : "",
+          ].join(" ")}
+        >
+          {description}
+        </h3>
       </div>
-      
 
       {/* CATEGORY TAGS */}
       {categories?.length > 0 && (
@@ -87,15 +59,19 @@ const TaskItem = ({
         </p>
       )}
 
-      {/* PRIORITY LABEL */}
-      {priority && (
+      {/* PRIORITY LABEL (hidden on hover) */}
+      {priority > 0 && !hovered && (
         <span
           className={[
             "text-xs px-2 py-0.5 rounded-full self-start ml-7",
-            priorityColors[priority] || "bg-gray-200 text-gray-700",
+            priority === 1
+              ? "bg-green-50 text-green-700"
+              : priority === 2
+              ? "bg-yellow-50 text-yellow-700"
+              : "bg-red-50 text-red-700",
           ].join(" ")}
         >
-          {priority}
+          {priority === 1 ? "Baixa" : priority === 2 ? "Média" : "Alta"}
         </span>
       )}
 
@@ -104,7 +80,7 @@ const TaskItem = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsEditing(true);
+            onOpenEdit?.();
           }}
           className="absolute right-3 top-3 text-tgray opacity-70 hover:opacity-100 transition"
         >
