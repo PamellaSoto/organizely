@@ -1,46 +1,33 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Header from "./components/Header";
 import TaskGrid from "./components/TaskGrid";
 import MenuActions from "./components/MenuActions";
 import EditingTaskModal from "./components/EditingTaskModal";
 import Snackbar from "./components/Snackbar";
+import { loadTasksFromStorage, saveTasksToStorage } from "./utils/localStorage";
+
+const WELCOME_TASK = [
+  {
+    id: 1,
+    description: "Bem-vindo ao Organizely! Edite ou remova esta tarefa.",
+    isCompleted: false,
+    priority: 3,
+    category: "Chores",
+    container: "backlog",
+  }
+];
 
 const Layout = () => {
-  // backlog tasks
-  const [backlogTasks, setBacklogTasks] = useState([
-    {
-      id: 1,
-      description: "Feed the cat",
-      isCompleted: false,
-      priority: 3,
-      category: "Chores",
-      container: "backlog",
-    },
-    {
-      id: 2,
-      description: "Buy groceries",
-      isCompleted: false,
-      priority: 2,
-      category: "Errands",
-      container: "backlog",
-    },
-    {
-      id: 3,
-      description: "Call mom",
-      isCompleted: false,
-      priority: 1,
-      category: "Personal",
-      container: "backlog",
-    },
-    {
-      id: 4,
-      description: "Write report",
-      isCompleted: true,
-      priority: 0,
-      category: "Work",
-      container: "backlog",
-    },
-  ]);
+  // Load tasks from localStorage or use default tasks
+  const [backlogTasks, setBacklogTasks] = useState(() => {
+    const storedTasks = loadTasksFromStorage();
+    return storedTasks || WELCOME_TASK;
+  });
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    saveTasksToStorage(backlogTasks);
+  }, [backlogTasks]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
