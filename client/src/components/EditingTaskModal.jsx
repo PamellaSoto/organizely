@@ -38,36 +38,34 @@ const priorityConfig = {
     hoverColor: "hover:bg-tredlight/70",
   },
 };
-
-const containerLabels = [
-  "Backlog",
-  "Segunda",
-  "Terça",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sábado",
-  "Domingo",
+const CONTAINER_MAP = [
+  { id: "backlog", label: "Backlog" },
+  { id: "monday", label: "Segunda" },
+  { id: "tuesday", label: "Terça" },
+  { id: "wednesday", label: "Quarta" },
+  { id: "thursday", label: "Quinta" },
+  { id: "friday", label: "Sexta" },
+  { id: "saturday", label: "Sábado" },
+  { id: "sunday", label: "Domingo" },
 ];
 
-const TEMP_CATEGORIES = [
-  "Trabalho",
-  "Pessoal",
-  "Estudos",
-  "Saúde",
-  "Financeiro",
-];
-
-const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
+const EditingTaskModal = ({
+  visible,
+  onClose,
+  task,
+  onSave,
+  onDelete,
+  categories = [],
+  onAddCategory,
+  onRemoveCategory,
+}) => {
   const [description, setDescription] = useState(task?.description || "");
   const [isCompleted, setIsCompleted] = useState(task?.isCompleted || false);
   const [priority, setPriority] = useState(task?.priority ?? 0);
   const [category, setCategory] = useState(
     (task?.categories && task.categories[0]) || ""
   );
-  const [position, setPosition] = useState(
-    task?.position || new Date().getDay()
-  );
+  const [container, setContainer] = useState(task?.container || "backlog");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
@@ -80,14 +78,14 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
     })
   );
 
-  const categoryOptions = TEMP_CATEGORIES.map((cat) => ({
+  const categoryOptions = categories.map((cat) => ({
     value: cat,
     label: cat,
   }));
 
-  const positionOptions = containerLabels.map((day, index) => ({
-    value: index,
-    label: day,
+  const positionOptions = CONTAINER_MAP.map((item) => ({
+    value: item.id,
+    label: item.label,
   }));
 
   useEffect(() => {
@@ -95,7 +93,7 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
     setIsCompleted(task?.isCompleted || false);
     setPriority(task?.priority ?? 0);
     setCategory((task?.categories && task.categories[0]) || "");
-    setPosition(task?.position || new Date().getDay());
+    setContainer(task?.container || "backlog");
   }, [task, visible]);
 
   const handleSave = () => {
@@ -105,7 +103,7 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
       isCompleted: isCompleted,
       priority: priority,
       categories: category ? [category] : [],
-      position: position,
+      container: container,
     };
     onSave?.(task?.id, updated);
     onClose?.();
@@ -117,8 +115,12 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
   };
 
   const handleCreateCategory = (closeDropdown) => {
-    if (newCategoryName.trim()) {
-      setCategory(newCategoryName.trim());
+    const trimmedName = newCategoryName.trim();
+    if (!trimmedName) return;
+
+    const success = onAddCategory?.(trimmedName);
+    if (success) {
+      setCategory(trimmedName);
       setNewCategoryName("");
       setIsCreatingCategory(false);
       closeDropdown?.();
@@ -130,8 +132,8 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
       <div className="flex flex-col gap-4">
         <div className="max-w-40">
           <Dropdown
-            value={position}
-            onChange={setPosition}
+            value={container}
+            onChange={setContainer}
             options={positionOptions}
             className="overflow-y-hidden"
             optionalIcon={<HiOutlineChevronDown />}
@@ -200,6 +202,31 @@ const EditingTaskModal = ({ visible, onClose, task, onSave, onDelete }) => {
             options={categoryOptions}
             placeholder="Selecione"
             showClearButton={category !== ""}
+            renderOption={({ option, isSelected }) => (
+              <div className="flex items-center justify-between group">
+                <button
+                  className={`
+                    flex-1 transition-smooth text-sm py-2.5 px-3 rounded-lg text-left hover:bg-gray-100
+                    ${isSelected ? "bg-tgray/20 font-semibold" : ""}
+                  `}
+                >
+                  {option.label}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveCategory?.(option.value);
+                    if (category === option.value) {
+                      setCategory("");
+                    }
+                  }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-100 rounded text-tred"
+                  title="Remover categoria"
+                >
+                  <HiX size={16} />
+                </button>
+              </div>
+            )}
             customFooter={({ close }) =>
               isCreatingCategory ? (
                 <div className="py-2 flex gap-2">

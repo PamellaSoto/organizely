@@ -5,6 +5,7 @@ import MenuActions from "./components/MenuActions";
 import EditingTaskModal from "./components/EditingTaskModal";
 import Snackbar from "./components/Snackbar";
 import { loadTasksFromStorage, saveTasksToStorage } from "./utils/localStorage";
+import { useCategories } from "./hooks/useCategories";
 
 const WELCOME_TASK = [
   {
@@ -14,7 +15,7 @@ const WELCOME_TASK = [
     priority: 3,
     category: "Chores",
     container: "backlog",
-  }
+  },
 ];
 
 const Layout = () => {
@@ -23,6 +24,9 @@ const Layout = () => {
     const storedTasks = loadTasksFromStorage();
     return storedTasks || WELCOME_TASK;
   });
+
+  // Categories management
+  const { categories, addCategory, removeCategory } = useCategories();
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
@@ -255,6 +259,9 @@ const Layout = () => {
             if (ok) closeModal();
           }}
           onDelete={handleDeleteWithUndo}
+          categories={categories}
+          onAddCategory={addCategory}
+          onRemoveCategory={removeCategory}
         />
         <Snackbar
           visible={snackbar.visible}
