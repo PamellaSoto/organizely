@@ -1,6 +1,6 @@
 # ✍ Organize.ly
 
-![Project cover](cover.png)
+![Project cover](/docs/cover.png)
 
 **A local or login-based weekly management app** designed to organize tasks visually, boost focus, and simplify your week.
 
