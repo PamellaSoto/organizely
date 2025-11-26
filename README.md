@@ -1,6 +1,6 @@
 # ✍ Organize.ly
 
-![Project cover](image.jpg)
+![Project cover](cover.png)
 
 **A local or login-based weekly management app** designed to organize tasks visually, boost focus, and simplify your week.
 
@@ -10,8 +10,6 @@
 3. [Features](#features)  
 4. [Technologies Used](#technologies-used)  
 8. [Prototype (Figma)](#prototype-figma)  
-5. [Architecture Overview](#architecture-overview)  
-6. [API Integration](#api-integration)  
 7. [REST API Documentation](#rest-api-documentation)  
 9. [How to Use](#how-to-use)
 
@@ -20,7 +18,7 @@
 
 Organize.ly is a **task management tool designed to boost personal productivity** by combining task control, scheduling, and prioritization — helping users plan their weekly activities with visual clarity and efficiency.
 
-It can run locally in your browser using **IndexedDB**, or with **user authentication (coming soon)**.
+It can run locally in your browser using **Local Storage**, or by creating an **account**.
 
 The main goal of this project is to offer a **clear, structured, and visually intuitive** way to organize and manage a week’s worth of tasks.
 
@@ -31,59 +29,31 @@ The main goal of this project is to offer a **clear, structured, and visually in
 - Organize tasks by priority (High / Medium / Low).
 - Drag-and-drop tasks into days of the week.
 - Mark tasks as done (visually highlighted).
-- Hide completed tasks and save them to a log file with completion date.
-- Highlight overdue tasks automatically.
+- Delete all completed tasks automatically.
 - Customize application background with preset colors and (soon) custom images.
-- Choose the first day of the week (default: Monday).
-- Pomodoro addon for focus.
+- (coming soon) Pomodoro addon for focus.
 - Integration with ZenQuotes API for daily motivation.
-- (coming soon) User authentication (login/logout).
 
 
 ## Technologies Used
 
 | Layer | Technology |
 |:------|:------------|
-| Backend | **Java**, **Spring Boot**, **JPA/Hibernate**, **PostgreSQL** |
+| Backend | **Java**, **Spring Boot**, **JPA**, **PostgreSQL** |
 | Frontend | **React**, **Tailwind CSS**, **Axios**, **Yup** |
-| Internationalization | **i18n** |
-| API Documentation | **Swagger** |
-| Deployment | **Render** (or Railway) |
+| Deployment | **Render** |
 
 
 ## Prototype (Figma)
 
 ![Figma print](/docs/figma.png)
-> The first design stage was a basic prototype in Figma, used to establish the creative direction, colors, and component states. [See here.](https://www.figma.com/design/OEGRgzXmXJx083vToIWtHg/Organize.ly?node-id=0-1&t=oCT3afQizhvm1F3f-1)
-
-## Architecture Overview
-
-### 🧩 System Design
-
-![System Design](image.jpg)
-> Diagram showing data flow between client, API, services, and database.  
-
----
-
-### 🗃️ Database Diagram (ERD)
-
-![Database Diagram](/docs/ERD.jpg)
-> Entity Relationship Diagram showing main entities and relationships.  
-
----
-
-### 📊 UML Diagram
-
-![UML Diagram](image.jpg)
-> Visual representation of the class structure and interactions.  
-
-
-## API Integration
-
+> The first design stage was a very basic prototype in Figma, used to establish the creative direction, colors, and component states. [See more here.](https://www.figma.com/design/OEGRgzXmXJx083vToIWtHg/Organize.ly?node-id=0-1&t=oCT3afQizhvm1F3f-1)
 
 ## REST API Documentation
 
-### Tasks API
+
+### Tasks
+
 
 | Method | Path | Description |	Body |
 |:-------|:-----|:------------|:-----|
@@ -92,8 +62,10 @@ The main goal of this project is to offer a **clear, structured, and visually in
 | PUT | /api/tasks/{id} | Update task | { "desc": "...", "completed": true } |
 | DELETE | /api/tasks/{id} | Delete task | — |
 
+### Categories
 
-### Auth API
+
+### Auth
 
 | Method | Path | Description |	Body |
 |:-------|:-----|:------------|:-----|
@@ -111,4 +83,4 @@ The main goal of this project is to offer a **clear, structured, and visually in
 
 --- 
 
-_Project by: Pamella Soto_
+_Project by: Pamella Sotomayor_
