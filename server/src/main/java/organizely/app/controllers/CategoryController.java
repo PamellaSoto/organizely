@@ -1,4 +1,4 @@
-package organizely.app.category.controllers;
+package organizely.app.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import organizely.app.category.entity.Category;
-import organizely.app.category.repository.ICategoryRepository;
-import organizely.app.category.services.CategoryService;
+import organizely.app.entity.Category;
+import organizely.app.repository.ICategoryRepository;
+import organizely.app.services.CategoryService;
 
 @RestController
 @RequestMapping("/api/category")
@@ -27,15 +27,15 @@ public class CategoryController {
   public ICategoryRepository categoryRepository;
 
   // create a new category
-  @PostMapping
+  @PostMapping("/new")
   public ResponseEntity<Object> createCategory(@RequestBody Category category) {
     this.categoryRepository.save(category);
     return ResponseEntity.status(HttpStatus.OK)
                          .body("Category created.");
   }
 
-  // (by user uuid) list all categories 
-  @GetMapping
+  //list all categories 
+  @GetMapping("/all")
   public ResponseEntity<Object> listAllCategories() {
     var categories = this.categoryRepository.findAll();
     return ResponseEntity.status(HttpStatus.OK).body(categories);
@@ -66,8 +66,4 @@ public class CategoryController {
     return ResponseEntity.status(HttpStatus.OK)
                                 .body("Category deleted.");
   }
-
-  // TODO: remove category from task (leaving it empty)
-
-  // TODO: set task to completed
 }

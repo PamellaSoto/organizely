@@ -2,7 +2,7 @@ import { HiOutlinePlus, HiOutlineRefresh, HiOutlineClock, HiOutlineFolderAdd, Hi
 
 const MenuActions = ({createTaskMethod, clearPendingMethod, pomodoroMethod}) => {
   return (
-    <div className='flex justify-between mb-4'>
+    <div className='flex justify-between sticky top-0 bg-gray-200 py-2 z-7 '>
       <div className='flex gap-8'>
         <button className="menu-button" onClick={createTaskMethod}>
           <HiOutlinePlus size={18}/>

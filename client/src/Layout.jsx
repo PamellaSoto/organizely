@@ -235,7 +235,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex flex-col h-dvh bg-gray-200 py-3 px-1.5 gap-4">
+    <div className="flex flex-col h-dvh bg-gray-200 p-3">
       <Header />
       <main className="flex flex-col flex-1 overflow-y-auto scrollbar pr-2 overflow-x-hidden">
         <MenuActions

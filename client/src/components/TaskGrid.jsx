@@ -57,7 +57,7 @@ const TaskGrid = ({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div
-        className="grid grid-cols-4 gap-3 grid-rows-4 h-full transition-smooth"
+        className="grid grid-cols-4 gap-3 grid-rows-4 min-h-dvh transition-smooth"
       >
         {columns.map((col) => (
           <div

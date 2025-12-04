@@ -9,7 +9,7 @@ import {
 
 const Header = () => {
   return (
-    <header className="flex flex-row items-center justify-between mb-4">
+    <header className="flex flex-row items-center justify-between border-b border-tgray/30 pb-2 ">
       <a href="https://github.com/PamellaSoto/organizely" target="_blank">
         <img
           className="hidden md:block h-16"

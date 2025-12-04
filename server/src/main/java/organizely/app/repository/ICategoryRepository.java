@@ -1,8 +1,8 @@
-package organizely.app.category.repository;
+package organizely.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import organizely.app.category.entity.Category;
+import organizely.app.entity.Category;
 
 public interface ICategoryRepository extends JpaRepository<Category, Integer> {
 

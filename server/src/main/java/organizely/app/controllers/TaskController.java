@@ -1,6 +1,4 @@
-package organizely.app.task.controllers;
-
-import java.util.UUID;
+package organizely.app.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import organizely.app.task.entity.Task;
-import organizely.app.task.repository.ITaskRepository;
-import organizely.app.task.services.TaskService;
+import organizely.app.dto.TaskUpdateDTO;
+import organizely.app.entity.Task;
+import organizely.app.repository.ITaskRepository;
+import organizely.app.services.TaskService;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -29,15 +28,15 @@ public class TaskController {
   public ITaskRepository taskRepository;
 
   // create a new task
-  @PostMapping
-  public ResponseEntity<Object> createTask(@RequestBody Task task) {
-    this.taskRepository.save(task);
-    return ResponseEntity.status(HttpStatus.OK)
-                         .body("Task registered.");
+  @PostMapping("/new")
+  public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    Task savedTask = this.taskRepository.save(task);
+    return ResponseEntity.status(HttpStatus.CREATED)
+                         .body(savedTask);
   }
 
-  // (by user uuid) list all tasks 
-  @GetMapping
+  // list all tasks 
+  @GetMapping("/all")
   public ResponseEntity<Object> listAllTasks() {
     var tasks = this.taskRepository.findAll();
     return ResponseEntity.status(HttpStatus.OK).body(tasks);
@@ -45,13 +44,13 @@ public class TaskController {
 
   // update task
   @PutMapping("/{id}/edit")
-  public ResponseEntity<Object> updateTask(@PathVariable("id") Integer taskId, @RequestBody Task task) {
+  public ResponseEntity<Object> updateTask(@PathVariable("id") Integer taskId, @RequestBody TaskUpdateDTO dto) {
     var existingTask = this.taskService.fetchTask(taskId);
     if (existingTask == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                            .body("Task not found.");
     }
-    this.taskService.updateTask(task, existingTask);
+    this.taskService.updateTask(dto, existingTask);
     return ResponseEntity.status(HttpStatus.OK)
                                 .body("Task updated.");
   }
@@ -68,8 +67,4 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.OK)
                                 .body("Task deleted.");
   }
-
-  // TODO: remove category from task (leaving it empty)
-
-  // TODO: set task to completed
 }
