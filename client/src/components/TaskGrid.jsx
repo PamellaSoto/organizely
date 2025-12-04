@@ -3,10 +3,13 @@ import TaskItem from "./TaskItem";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const TaskGrid = ({
-  backlogTasks = [],
+  tasks = [],
+  newTasks = [],
   onToggleComplete,
   onDragEnd,
   onOpenEdit,
+  onConfirmNew,
+  onCancelNew,
 }) => {
   const columns = [
     {
@@ -51,18 +54,17 @@ const TaskGrid = ({
     },
   ];
 
-  const getTasksFor = (containerId) =>
-    backlogTasks.filter((t) => t.container === containerId);
+  const getTasksForColumn = (columnId) => {
+    return tasks.filter((t) => t.dayOfWeek === columnId);
+  };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div
-        className="grid grid-cols-4 gap-3 grid-rows-4 min-h-dvh transition-smooth"
-      >
+      <div className="grid grid-cols-4 gap-3 grid-rows-4">
         {columns.map((col) => (
           <div
             key={col.id}
-            className={`flex flex-col bg-white rounded-lg p-3 ${col.className}`}
+            className={`bg-white rounded-lg p-3 ${col.className}`}
           >
             <Droppable droppableId={col.id}>
               {(provided) => (
@@ -71,33 +73,40 @@ const TaskGrid = ({
                   innerRef={provided.innerRef}
                   droppableProps={provided.droppableProps}
                 >
-                  {getTasksFor(col.id).map((task, index) => (
+                  {/* new task with input */}
+                  {col.id === "backlog" &&
+                    newTasks.map((task) => (
+                      <div key={task.id} className="mb-3">
+                        <TaskItem
+                          task={task}
+                          isEditing={true}
+                          onConfirmNew={onConfirmNew}
+                          onCancelNew={onCancelNew}
+                        />
+                      </div>
+                    ))}
+
+                  {/* list all tasks by column id */}
+                  {getTasksForColumn(col.id).map((task, index) => (
                     <Draggable
                       key={task.id}
                       draggableId={String(task.id)}
                       index={index}
                     >
-                      {(providedDraggable, snapshotDraggable) => (
-                        <div
-                          ref={providedDraggable.innerRef}
-                          {...providedDraggable.draggableProps}
-                          {...providedDraggable.dragHandleProps}
-                          className="mb-3"
-                        >
+                      {(providedDrag, snapshotDrag) => (
+                        <div className="mb-3">
                           <TaskItem
-                            description={task.description}
-                            isCompleted={task.isCompleted}
-                            priority={task.priority}
-                            category={task.categories}
-                            onToggleComplete={() => onToggleComplete?.(task.id)}
-                            onOpenEdit={() => onOpenEdit?.(task.id)}
-                            isDragging={snapshotDraggable.isDragging}
+                            task={task}
+                            provided={providedDrag}
+                            snapshot={snapshotDrag}
+                            onToggle={() => onToggleComplete(task.id)}
+                            onEdit={() => onOpenEdit(task.id)}
                           />
                         </div>
                       )}
                     </Draggable>
                   ))}
-                  <div style={{ display: "none" }}>{provided.placeholder}</div>
+                  {provided.placeholder}
                 </TaskContainer>
               )}
             </Droppable>

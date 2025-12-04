@@ -1,12 +1,8 @@
-const TaskContainer = ({ children, title, innerRef, droppableProps }) => {
+const TaskContainer = ({ title, innerRef, droppableProps, children }) => {
   return (
     <>
-      <h2 className="mb-4 text-base font-medium text-gray-700">{title}</h2>
-      <div
-        ref={innerRef}
-        {...droppableProps}
-        className="flex-1 overflow-y-auto scrollbar pr-2"
-      >
+      <h2 className="text-lg font-bold mb-3">{title}</h2>
+      <div ref={innerRef} {...droppableProps} className="min-h-[100px]">
         {children}
       </div>
     </>

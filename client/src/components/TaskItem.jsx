@@ -1,58 +1,113 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { LuCircle, LuCircleCheckBig } from "react-icons/lu";
 
 const TaskItem = ({
-  description,
-  isCompleted = false,
-  priority = 0,
-  category = '',
-  onToggleComplete,
-  onOpenEdit,
-  isDragging
+  task,
+  provided,
+  snapshot,
+  onToggle,
+  onEdit,
+  isEditing = false,
+  onConfirmNew,
+  onCancelNew,
 }) => {
   const [hovered, setHovered] = useState(false);
+  const [description, setDescription] = useState(task.description || "");
+  const inputRef = useRef(null);
+
+  const {
+    description: taskDescription,
+    isCompleted,
+    priority,
+    category,
+  } = task;
+  const isDragging = snapshot?.isDragging;
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onConfirmNew(task.id, description);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancelNew(task.id);
+    }
+  };
+
+  const handleBlur = () => {
+    onCancelNew(task.id);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="bg-white rounded-xl px-3 py-2 border border-tblue">
+        <input
+          ref={inputRef}
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          placeholder="Digite a descrição da tarefa..."
+          className="w-full outline-none text-sm"
+        />
+      </div>
+    );
+  }
+
+  // Render normal task item
   return (
     <div
+      ref={provided?.innerRef}
+      {...provided?.draggableProps}
+      {...provided?.dragHandleProps}
       className={[
         "bg-white rounded-xl px-2.5 py-2 relative transition-smooth cursor-pointer flex items-center justify-between border overflow-hidden",
         hovered ? "border-tblue" : "border-tlightgray",
         isCompleted ? "line-through opacity-60 saturate-0" : "",
-        isDragging ? "shadow-md scale-105" : ""
+        isDragging ? "shadow-md scale-105" : "",
       ].join(" ")}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={(e) => {
-        e.stopPropagation();
-        onOpenEdit?.();
-      }}
+      onClick={() => onEdit(task.id)}
     >
-      <div className={`flex gap-2 items-center transition-smooth transform 
-        ${hovered ? "transform translate-x-0 text-blue-500" : " -translate-x-5"}
-        ${category ? 'items-start!' : ''}`
-        }>
+      <div
+        className={`flex gap-2 items-center transition-smooth transform ${
+          hovered ? "transform translate-x-0 text-blue-500" : " -translate-x-5"
+        } ${category ? "items-start!" : ""}`}
+      >
         {/* checkbox */}
         <div
-          className={`transition-smoothcategory ? "mt-1" : ""} ${hovered ? "opacity-100" : "opacity-0"}`}
+          className={`transition-smooth ${category ? "mt-1" : ""} ${
+            hovered ? "opacity-100" : "opacity-0"
+          }`}
           onClick={(e) => {
             e.stopPropagation();
-            onToggleComplete?.();
+            onToggle?.(task.id);
           }}
-          >
-          {!isCompleted ? (<LuCircle size={16}/>) : (<LuCircleCheckBig size={16}/>)}
+        >
+          {!isCompleted ? (
+            <LuCircle size={16} />
+          ) : (
+            <LuCircleCheckBig size={16} />
+          )}
         </div>
 
         {/* description and category */}
-        <div className="w-11/12 flex flex-col justify-start"> 
-          <h3>{description}</h3>
-          {category != '' && (
-            <p className="text-[0.85em] font-semibold text-tgray">
-              {category}
-            </p>
+        <div className="w-11/12 flex flex-col justify-start">
+          <h3>{taskDescription}</h3>
+          {category != "" && (
+            <p className="text-[0.85em] font-semibold text-tgray">{category}</p>
           )}
-        </div>  
+        </div>
       </div>
-         
+
       {/* priority label */}
       {priority > 0 && (
         <span
@@ -63,7 +118,7 @@ const TaskItem = ({
               : priority === 2
               ? "bg-tyellowlight text-torange"
               : "bg-tredlight text-tred",
-              hovered ? "opacity-0" : "opacity-100"
+            hovered ? "opacity-0" : "opacity-100",
           ].join(" ")}
         >
           {priority === 1 ? "Baixa" : priority === 2 ? "Média" : "Alta"}
@@ -73,13 +128,16 @@ const TaskItem = ({
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onOpenEdit?.();
+          onEdit?.(task.id);
         }}
-        className={`text-tgray flex-start transition-smooth transform ${hovered ? 'translate-x-0 opacity-100 cursor-pointer' : 'translate-x-6 opacity-0'}`}
+        className={`text-tgray flex-start transition-smooth transform ${
+          hovered
+            ? "translate-x-0 opacity-100 cursor-pointer"
+            : "translate-x-6 opacity-0"
+        }`}
       >
-        <HiOutlinePencilAlt size={20}/>
+        <HiOutlinePencilAlt size={20} />
       </button>
-
     </div>
   );
 };

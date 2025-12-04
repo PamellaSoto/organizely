@@ -104,12 +104,18 @@ const EditingTaskModal = ({
       priority: priority,
       categories: category ? [category] : [],
       container: container,
+      _isNew: false,
     };
     onSave?.(task?.id, updated);
     onClose?.();
   };
 
   const handleDelete = () => {
+    // If it's a new empty task, just close without showing snackbar
+    if (task?._isNew && !description.trim()) {
+      onClose?.();
+      return;
+    }
     onDelete?.(task?.id);
     onClose?.();
   };

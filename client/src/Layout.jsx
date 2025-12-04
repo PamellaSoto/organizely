@@ -4,37 +4,14 @@ import TaskGrid from "./components/TaskGrid";
 import MenuActions from "./components/MenuActions";
 import EditingTaskModal from "./components/EditingTaskModal";
 import Snackbar from "./components/Snackbar";
-import { loadTasksFromStorage, saveTasksToStorage } from "./utils/localStorage";
-import { useCategories } from "./hooks/useCategories";
-
-const WELCOME_TASK = [
-  {
-    id: 1,
-    description: "Bem-vindo ao Organizely! Edite ou remova esta tarefa.",
-    isCompleted: false,
-    priority: 3,
-    category: "Chores",
-    container: "backlog",
-  },
-];
+import * as API from "./utils/api";
 
 const Layout = () => {
-  // Load tasks from localStorage or use default tasks
-  const [backlogTasks, setBacklogTasks] = useState(() => {
-    const storedTasks = loadTasksFromStorage();
-    return storedTasks || WELCOME_TASK;
-  });
-
-  // Categories management
-  const { categories, addCategory, removeCategory } = useCategories();
-
-  // Save tasks to localStorage whenever they change
-  useEffect(() => {
-    saveTasksToStorage(backlogTasks);
-  }, [backlogTasks]);
-
+  const [backlogTasks, setBacklogTasks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [newTask, setNewTask] = useState([]);
 
   const [snackbar, setSnackbar] = useState({
     visible: false,
@@ -42,26 +19,119 @@ const Layout = () => {
     onUndo: null,
     undoLabel: "Desfazer",
   });
-  const [editedPending, setEditedPending] = useState(null);
   const snackbarTimerRef = useRef(null);
 
-  const createTask = () => {
-    const newTask = {
-      id: Date.now(),
-      description: "",
-      isCompleted: false,
-      priority: 0,
-      category: "",
-      container: "backlog",
-      _isNew: true, // flag para saber se é task nova
+  // load tasks on mount
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const tasks = await API.getTasks();
+        setBacklogTasks(tasks);
+      } catch (error) {
+        console.error(error);
+        showSnackbar({
+          message: "Erro ao carregar tarefas",
+          onUndo: null,
+          undoLabel: "",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
-    setBacklogTasks((prev) => [newTask, ...prev]);
-    setSelectedTaskId(newTask.id);
-    setModalVisible(true);
+    loadTasks();
+  }, []);
+
+  // snackbar
+  const showSnackbar = ({ message, onUndo, undoLabel = "Desfazer" }) => {
+    setSnackbar({ visible: true, message, onUndo, undoLabel });
+    if (snackbarTimerRef.current) clearTimeout(snackbarTimerRef.current);
+    snackbarTimerRef.current = setTimeout(() => {
+      setSnackbar((s) => ({ ...s, visible: false }));
+      snackbarTimerRef.current = null;
+    }, 5000);
   };
 
-  // dnd context
-  const handleDragEnd = (result) => {
+  // create new task
+  const createNewTask = () => {
+    const tempId = `temp-${Date.now()}`;
+    const newTask = {
+      id: tempId,
+      description: "",
+      isEditing: true,
+      dayOfWeek: "backlog",
+      isCompleted: false,
+      priority: 0,
+      category: null,
+    };
+    setNewTask((prev) => [newTask, ...prev]);
+  };
+
+  const saveNewTask = async (tempId, description) => {
+    const trimmed = description.trim();
+    if (!trimmed) {
+      cancelNewTask(tempId);
+      return;
+    }
+
+    try {
+      const createdTask = await API.createTask({ description: trimmed });
+      setNewTask((prev) => prev.filter((t) => t.id !== tempId));
+      setBacklogTasks((prev) => [createdTask, ...prev]);
+      showSnackbar({
+        message: "Tarefa criada com sucesso!",
+        onUndo: async () => {
+          try {
+            await API.deleteTask(createdTask.id);
+            setBacklogTasks((prev) =>
+              prev.filter((t) => t.id !== createdTask.id)
+            );
+          } catch {
+            console.error("Failed to undo create");
+          }
+        },
+        undoLabel: "Desfazer",
+      });
+
+      createNewTask();
+    } catch (error) {
+      console.error(error);
+      showSnackbar({
+        message: "Erro ao criar tarefa",
+        onUndo: null,
+        undoLabel: "",
+      });
+    }
+  };
+
+  const cancelNewTask = (tempId) => {
+    setNewTask((prev) => prev.filter((t) => t.id !== tempId));
+  };
+
+  // toggle task complete
+  const toggleComplete = async (taskId) => {
+    const task = backlogTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const updatedTask = { ...task, isCompleted: !task.isCompleted };
+
+    setBacklogTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? updatedTask : t))
+    );
+
+    try {
+      await API.updateTask(taskId, updatedTask);
+    } catch {
+      setBacklogTasks((prev) => prev.map((t) => (t.id === taskId ? task : t)));
+      showSnackbar({
+        message: "Erro ao atualizar tarefa",
+        onUndo: null,
+        undoLabel: "",
+      });
+    }
+  };
+
+  // dnd logic
+  const handleDragEnd = async (result) => {
     const { source, destination, draggableId } = result || {};
     if (!destination) return;
 
@@ -72,103 +142,130 @@ const Layout = () => {
     if (sourceContainer === destContainer && source.index === destination.index)
       return;
 
-    setBacklogTasks((prev) => {
-      const draggedTask = prev.find((t) => t.id === draggableTaskId);
-      if (!draggedTask) return prev;
+    const draggedTask = backlogTasks.find((t) => t.id === draggableTaskId);
+    if (!draggedTask) return;
 
-      const withoutDragged = prev.filter((t) => t.id !== draggableTaskId);
-      const destTasks = withoutDragged.filter(
-        (t) => t.container === destContainer
+    const updatedTask = { ...draggedTask, dayOfWeek: destContainer };
+
+    const withoutDragged = backlogTasks.filter((t) => t.id !== draggableTaskId);
+    const destTasks = withoutDragged.filter(
+      (t) => t.dayOfWeek === destContainer
+    );
+
+    let newTask;
+    if (destination.index >= destTasks.length) {
+      const lastIndex = withoutDragged.reduce(
+        (idx, t, i) => (t.dayOfWeek === destContainer ? i : idx),
+        -1
       );
-      let insertBeforeId = null;
-      if (destination.index < destTasks.length) {
-        insertBeforeId = destTasks[destination.index].id;
-      }
 
-      const newDragged = { ...draggedTask, container: destContainer };
-
-      if (insertBeforeId == null) {
-        const lastIndex = (() => {
-          let idx = -1;
-          for (let i = 0; i < withoutDragged.length; i++) {
-            if (withoutDragged[i].container === destContainer) idx = i;
-          }
-          return idx;
-        })();
-
-        if (lastIndex === -1) {
-          return [...withoutDragged, newDragged];
-        } else {
-          return [
-            ...withoutDragged.slice(0, lastIndex + 1),
-            newDragged,
-            ...withoutDragged.slice(lastIndex + 1),
-          ];
-        }
+      if (lastIndex === -1) {
+        newTask = [...withoutDragged, updatedTask];
       } else {
-        const idx = withoutDragged.findIndex((t) => t.id === insertBeforeId);
-        if (idx === -1) return [...withoutDragged, newDragged];
-        return [
-          ...withoutDragged.slice(0, idx),
-          newDragged,
-          ...withoutDragged.slice(idx),
+        newTask = [
+          ...withoutDragged.slice(0, lastIndex + 1),
+          updatedTask,
+          ...withoutDragged.slice(lastIndex + 1),
         ];
       }
-    });
+    } else {
+      const insertBeforeId = destTasks[destination.index].id;
+      const idx = withoutDragged.findIndex((t) => t.id === insertBeforeId);
+      newTask = [
+        ...withoutDragged.slice(0, idx),
+        updatedTask,
+        ...withoutDragged.slice(idx),
+      ];
+    }
+
+    setBacklogTasks(newTask);
+
+    try {
+      await API.updateTask(draggableTaskId, updatedTask);
+    } catch {
+      setBacklogTasks(backlogTasks);
+      showSnackbar({
+        message: "Erro ao mover tarefa",
+        onUndo: null,
+        undoLabel: "",
+      });
+    }
   };
 
-  const toggleComplete = (taskId) => {
-    setBacklogTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId ? { ...t, isCompleted: !t.isCompleted } : t
-      )
-    );
-  };
-
-  // save (create/update) task from modal
-  const saveTask = (taskId, updated) => {
+  // update task
+  const updateTask = async (taskId, updated) => {
     const text = (updated.description || "").trim();
     if (text === "") {
-      // Não salva nem fecha modal se descrição vazia
       return false;
     }
-    let wasNew = false;
-    setBacklogTasks((prev) => {
-      const oldTask = prev.find((t) => t.id === taskId);
-      if (oldTask && oldTask._isNew) wasNew = true;
-      if (oldTask && !oldTask._isNew) setEditedPending({ ...oldTask });
-      return prev.map((t) =>
-        t.id === taskId ? { ...t, ...updated, _isNew: false } : t
+
+    const oldTask = backlogTasks.find((t) => t.id === taskId);
+    if (!oldTask) return false;
+
+    try {
+      await API.updateTask(taskId, updated);
+      setBacklogTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updated } : t))
       );
-    });
-    // Snackbar de criação
-    setTimeout(() => {
-      if (wasNew) {
-        showSnackbar({
-          message: "Tarefa criada com sucesso!",
-          onUndo: () => {
-            setBacklogTasks((prev) => prev.filter((t) => t.id !== taskId));
-          },
-          undoLabel: "Desfazer",
-        });
-      } else {
-        showSnackbar({
-          message: "Tarefa editada",
-          onUndo: () => {
-            if (editedPending)
-              setBacklogTasks((prev) =>
-                prev.map((t) =>
-                  t.id === editedPending.id ? { ...editedPending } : t
-                )
-              );
-          },
-          undoLabel: "Desfazer",
-        });
-      }
-    }, 0);
-    return true;
+
+      showSnackbar({
+        message: "Tarefa atualizada!",
+        onUndo: async () => {
+          try {
+            await API.updateTask(taskId, oldTask);
+            setBacklogTasks((prev) =>
+              prev.map((t) => (t.id === taskId ? oldTask : t))
+            );
+          } catch {
+            console.error("Failed to undo update");
+          }
+        },
+        undoLabel: "Desfazer",
+      });
+
+      return true;
+    } catch {
+      console.error("Failed to save task");
+      showSnackbar({
+        message: "Erro ao atualizar tarefa",
+        onUndo: null,
+        undoLabel: "",
+      });
+      return false;
+    }
   };
 
+  // delete task
+  const handleDelete = async (taskId) => {
+    const task = backlogTasks.find((t) => t.id === taskId);
+    if (!task) return;
+    setBacklogTasks((prev) => prev.filter((t) => t.id !== taskId));
+
+    try {
+      await API.deleteTask(taskId);
+      showSnackbar({
+        message: "Tarefa removida",
+        onUndo: async () => {
+          try {
+            const restoredTask = await API.createTask(task);
+            setBacklogTasks((prev) => [restoredTask, ...prev]);
+          } catch {
+            console.error("Failed to undo delete");
+          }
+        },
+        undoLabel: "Desfazer",
+      });
+    } catch {
+      setBacklogTasks((prev) => [task, ...prev]);
+      showSnackbar({
+        message: "Erro ao remover tarefa",
+        onUndo: null,
+        undoLabel: "",
+      });
+    }
+  };
+
+  // modal
   const openEdit = (taskId) => {
     setSelectedTaskId(taskId);
     setModalVisible(true);
@@ -179,89 +276,96 @@ const Layout = () => {
     setSelectedTaskId(null);
   };
 
-  const handleDeleteWithUndo = (taskId) => {
-    setBacklogTasks((prev) => {
-      const task = prev.find((t) => t.id === taskId);
-      if (!task) return prev;
+  // clear pending tasks back to backlog
+  const clearPending = async () => {
+    const pendingTasks = backlogTasks.filter(
+      (t) => !t.isCompleted && t.dayOfWeek !== "backlog"
+    );
+    if (pendingTasks.length === 0) return;
+
+    const updatedTasks = backlogTasks.map((t) =>
+      t.isCompleted ? t : { ...t, dayOfWeek: "backlog" }
+    );
+    setBacklogTasks(updatedTasks);
+
+    try {
+      await Promise.all(
+        pendingTasks.map((task) =>
+          API.updateTask(task.id, { ...task, dayOfWeek: "backlog" })
+        )
+      );
       showSnackbar({
-        message: "Tarefa removida",
-        onUndo: () => {
-          setBacklogTasks((p) => [task, ...p]);
+        message: `${pendingTasks.length} tarefa(s) movida(s) para o backlog`,
+        onUndo: async () => {
+          try {
+            await Promise.all(
+              pendingTasks.map((task) => API.updateTask(task.id, task))
+            );
+            setBacklogTasks((prev) =>
+              prev.map((t) => {
+                const found = pendingTasks.find((a) => a.id === t.id);
+                return found ? { ...t, dayOfWeek: found.dayOfWeek } : t;
+              })
+            );
+          } catch {
+            console.error("Failed to undo clear pending");
+          }
         },
         undoLabel: "Desfazer",
       });
-      return prev.filter((t) => t.id !== taskId);
-    });
-  };
-
-  // Snackbar handler
-  const showSnackbar = ({ message, onUndo, undoLabel = "Desfazer" }) => {
-    setSnackbar({ visible: true, message, onUndo, undoLabel });
-    if (snackbarTimerRef.current) clearTimeout(snackbarTimerRef.current);
-    snackbarTimerRef.current = setTimeout(() => {
-      setSnackbar((s) => ({ ...s, visible: false }));
-      setEditedPending(null);
-      snackbarTimerRef.current = null;
-    }, 5000);
-  };
-
-  // move all not-completed tasks back to backlog
-  const clearPending = () => {
-    setBacklogTasks((prev) => {
-      const affected = prev.filter(
-        (t) => !t.isCompleted && t.container !== "backlog"
-      );
-      if (affected.length === 0) return prev;
+    } catch {
+      // Rollback on error
+      setBacklogTasks(backlogTasks);
       showSnackbar({
-        message: `Tarefas pendentes movidas para o backlog`,
-        onUndo: () => {
-          setBacklogTasks((p) =>
-            p.map((t) => {
-              const found = affected.find((a) => a.id === t.id);
-              return found ? { ...t, container: found.container } : t;
-            })
-          );
-        },
-        undoLabel: "Desfazer",
+        message: "Erro ao mover tarefas",
+        onUndo: null,
+        undoLabel: "",
       });
-      return prev.map((t) =>
-        t.isCompleted ? t : { ...t, container: "backlog" }
-      );
-    });
+    }
   };
 
   const showPomodoro = () => {
     alert("Em breve.");
   };
 
+  // loading screen (api)
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-dvh bg-gray-200 p-3 items-center justify-center">
+        <p className="text-gray-500">Carregando tarefas...</p>
+      </div>
+    );
+  }
+
+  // main layout
   return (
-    <div className="flex flex-col h-dvh bg-gray-200 p-3">
+    <div className="flex flex-col h-dvh bg-gray-200 relative">
       <Header />
-      <main className="flex flex-col flex-1 overflow-y-auto scrollbar pr-2 overflow-x-hidden">
+      <main className="flex flex-col flex-1 gap-2 p-3 pt-0 overflow-y-hidden z-4 w-full bg-gray-200 relative top-23 transition-smooth">
         <MenuActions
-          createTaskMethod={createTask}
+          createTaskMethod={createNewTask}
           clearPendingMethod={clearPending}
           pomodoroMethod={showPomodoro}
         />
 
         <TaskGrid
-          backlogTasks={backlogTasks}
+          tasks={backlogTasks}
+          newTasks={newTask}
           onToggleComplete={toggleComplete}
           onDragEnd={handleDragEnd}
           onOpenEdit={openEdit}
+          onConfirmNew={saveNewTask}
+          onCancelNew={cancelNewTask}
         />
         <EditingTaskModal
           visible={modalVisible}
           onClose={closeModal}
           task={backlogTasks.find((t) => t.id === selectedTaskId)}
-          onSave={(taskId, updated) => {
-            const ok = saveTask(taskId, updated);
+          onSave={async (taskId, updated) => {
+            const ok = await updateTask(taskId, updated);
             if (ok) closeModal();
           }}
-          onDelete={handleDeleteWithUndo}
-          categories={categories}
-          onAddCategory={addCategory}
-          onRemoveCategory={removeCategory}
+          onDelete={handleDelete}
         />
         <Snackbar
           visible={snackbar.visible}

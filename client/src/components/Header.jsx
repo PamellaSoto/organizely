@@ -9,7 +9,7 @@ import {
 
 const Header = () => {
   return (
-    <header className="flex flex-row items-center justify-between border-b border-tgray/30 pb-2 ">
+    <header className="bg-gray-200 flex flex-row items-center justify-between border-b border-tgray/30 p-3 fixed top-0 right-0 w-full z-3">
       <a href="https://github.com/PamellaSoto/organizely" target="_blank">
         <img
           className="hidden md:block h-16"
@@ -39,11 +39,12 @@ const Header = () => {
           </a>
         </p>
         <div className="flex gap-8">
-          {/* TODO: abre um carrossel com artes explicando as funcionalidades do app */}
-          <button className="menu-button">
+          <a  className="menu-button" 
+              href="https://github.com/PamellaSoto/organizely/blob/main/README.md#how-to-use"
+              target="_blank">
             <HiOutlineQuestionMarkCircle size={24} /> Ajuda
-          </button>
-          {/* TODO: abre um modal dedicado a customização, organização e perfil do usuario*/}
+          </a>
+          {/* TODO: abre um modal dedicado a customização e organização*/}
           <button className="menu-button">
             <HiOutlineCog size={24} /> Configurações
           </button>
