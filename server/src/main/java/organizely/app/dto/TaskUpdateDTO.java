@@ -1,6 +1,5 @@
 package organizely.app.dto;
 
-import organizely.app.entity.Priority;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,8 @@ import lombok.NoArgsConstructor;
 public class TaskUpdateDTO {
   private String description;
   private Boolean isCompleted;
+  private Boolean isArchived;
   private String dayOfWeek;
-  private Priority priority;
+  private Integer priority;
   private Integer category;
 }

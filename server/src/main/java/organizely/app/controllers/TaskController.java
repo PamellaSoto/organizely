@@ -44,15 +44,15 @@ public class TaskController {
 
   // update task
   @PutMapping("/{id}/edit")
-  public ResponseEntity<Object> updateTask(@PathVariable("id") Integer taskId, @RequestBody TaskUpdateDTO dto) {
+  public ResponseEntity<Task> updateTask(@PathVariable("id") Integer taskId, @RequestBody TaskUpdateDTO dto) {
     var existingTask = this.taskService.fetchTask(taskId);
     if (existingTask == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                           .body("Task not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+    
     this.taskService.updateTask(dto, existingTask);
-    return ResponseEntity.status(HttpStatus.OK)
-                                .body("Task updated.");
+    
+    return ResponseEntity.ok(existingTask);
   }
 
   // delete task
@@ -60,11 +60,25 @@ public class TaskController {
   public ResponseEntity<Object> deleteTask(@PathVariable("id") Integer taskId) {
     var existingTask = this.taskService.fetchTask(taskId);
     if (existingTask == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
                            .body("Task not found.");
     }
     this.taskRepository.deleteById(taskId);
     return ResponseEntity.status(HttpStatus.OK)
                                 .body("Task deleted.");
+  }
+
+  // archive task
+  @PutMapping("/{id}/archive")
+  public ResponseEntity<Task> archiveTask(@PathVariable("id") Integer taskId) {
+    var existingTask = this.taskService.fetchTask(taskId);
+    if (existingTask == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    this.taskService.archiveTask(taskId);
+    var updated = this.taskService.fetchTask(taskId);
+
+    return ResponseEntity.ok(updated);
   }
 }

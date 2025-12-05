@@ -17,7 +17,7 @@ import organizely.app.repository.ICategoryRepository;
 import organizely.app.services.CategoryService;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
   @Autowired

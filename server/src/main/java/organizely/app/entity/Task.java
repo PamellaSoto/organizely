@@ -30,6 +30,9 @@ public class Task {
 
   @Column(name = "is_completed", nullable = false)
   private Boolean isCompleted;
+
+  @Column(name = "is_archived", nullable = false)
+  private Boolean isArchived;
   
   @Column(name = "priority", nullable = false)
   private Priority priority;
@@ -45,6 +48,9 @@ public class Task {
   public void prePersist() {
     if (this.isCompleted == null) {
       this.isCompleted = false;
+    }
+    if (this.isArchived == null) {
+      this.isArchived = false;
     }
     if (this.priority == null) {
       this.priority = Priority.NONE;

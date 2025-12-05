@@ -14,12 +14,11 @@ public class CategoryService {
   
   // fetch category
   public Category fetchCategory(Integer categoryId) {
-    var categoryResult = this.categoryRepository.findById(categoryId);
+    var categoryResult = categoryRepository.findById(categoryId);
     if (categoryResult.isEmpty()) {
       return null;
     }
-    Category existingCategory = categoryResult.get();
-    return existingCategory;
+    return categoryResult.get();
   }
 
   // update category
