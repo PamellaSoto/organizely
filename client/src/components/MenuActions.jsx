@@ -1,12 +1,13 @@
 import { HiOutlinePlus, HiOutlineRefresh, HiOutlineClock, HiOutlineFolderAdd, HiOutlineFolder } from "react-icons/hi";
 
-const MenuActions = ({createTaskMethod, clearPendingMethod, pomodoroMethod}) => {
+const MenuActions = ({ createTaskMethod, clearPendingMethod, pomodoroMethod, onOpenArchive, backgroundColor }) => {
   return (
-    <div className='flex justify-between bg-gray-200 py-2 sticky top-0'>
+    <div className='flex justify-between py-2 sticky top-0' style={{ backgroundColor }}>
       <div className='flex gap-8'>
         <button className="menu-button" onClick={createTaskMethod}>
           <HiOutlinePlus size={18}/>
-          Adicionar nova tarefa</button>
+          Adicionar nova tarefa
+        </button>
         <button className="menu-button" onClick={clearPendingMethod}>
           <HiOutlineRefresh size={18}/>
           Limpar tarefas pendentes
@@ -21,7 +22,7 @@ const MenuActions = ({createTaskMethod, clearPendingMethod, pomodoroMethod}) => 
           <HiOutlineFolderAdd size={18}/>
           Arquivar tarefas marcadas como feitas
         </button>
-        <button className="menu-button">
+        <button className="menu-button" onClick={onOpenArchive}>
           <HiOutlineFolder size={18}/>
           Tarefas arquivadas (0)
         </button>

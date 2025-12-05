@@ -42,14 +42,22 @@ export const useDragAndDrop = (getTasks, setTasks, showSnackbar) => {
     setTasks(reordered);
 
     try {
-      await API.updateTask(taskId, { ...task, dayOfWeek: newDayOfWeek });
+      const payload = {
+        description: task.description,
+        isCompleted: task.isCompleted,
+        priority: task.priority,
+        dayOfWeek: newDayOfWeek,
+        category: task.category?.id || null,
+      };
+
+      const updatedTask = await API.updateTask(taskId, payload);
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
     } catch (error) {
       console.error("Failed to update task:", error);
       setTasks(tasks);
       showSnackbar({
         message: "Erro ao mover tarefa",
         onUndo: null,
-        undoLabel: "",
       });
     }
   };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { HiX } from "react-icons/hi";
-import ActionButton from "./ActionButton";
+import ActionButton from "../ActionButton";
 
 const Dropdown = ({
   label,
@@ -49,7 +49,7 @@ const Dropdown = ({
 
   return (
     <div className="relative flex-1" ref={dropdownRef}>
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         {label && (
           <label className="text-sm font-medium text-tgray mb-1 block">
             {label}
@@ -69,9 +69,9 @@ const Dropdown = ({
         ) : (
           <ActionButton
             onClick={() => setIsOpen(!isOpen)}
-            className={`w-full border border-red flex-row-reverse justify-between hover:border-gray-400 
-              ${value ? "bg-blue-50 text-blue-700" : "bg-white text-gray-700"}
-              `}
+            className={`w-full border flex-row-reverse justify-between hover:border-gray-400 
+              ${value ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-white text-gray-700 border-gray-300"}
+            `}
             label={selectedOption?.label || placeholder}
             iconLabel={
               <span
@@ -113,8 +113,6 @@ const Dropdown = ({
                 )}
               </div>
             ))}
-
-            {/* Footer customizado (ex: criar nova categoria) */}
             {customFooter && (
               <div className="border-t border-gray-200 mt-1">
                 {customFooter({ close: () => setIsOpen(false) })}

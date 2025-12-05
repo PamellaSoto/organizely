@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   //TEMPORARY URL FOR DEVELOPMENT
-  baseURL: `http://localhost:612/api/`
+  baseURL: `http://localhost:612/api/`,
 });
 
 // ========== TASK CRUD OPERATIONS ==========
@@ -10,10 +10,10 @@ const api = axios.create({
 // Create a new task
 export const createTask = async (task) => {
   try {
-    const response = await api.post('/tasks/new', task);
+    const response = await api.post("/tasks/new", task);
     return response.data;
   } catch (error) {
-    console.error('Error creating task:', error);
+    console.error("Error creating task:", error);
     throw error;
   }
 };
@@ -21,10 +21,10 @@ export const createTask = async (task) => {
 // Get all tasks
 export const getTasks = async () => {
   try {
-    const response = await api.get('/tasks/all');
+    const response = await api.get("/tasks/all");
     return response.data;
   } catch (error) {
-    console.error('Error fetching tasks:', error);
+    console.error("Error fetching tasks:", error);
     throw error;
   }
 };
@@ -46,7 +46,42 @@ export const deleteTask = async (taskId) => {
     const response = await api.delete(`/tasks/${taskId}/delete`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting task:', error);
+    console.error("Error deleting task:", error);
+    throw error;
+  }
+};
+
+// ========== CATEGORY CRUD OPERATIONS ==========
+
+// Get all categories
+export const getCategories = async () => {
+  try {
+    const response = await api.get("/categories/all");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw error;
+  }
+};
+
+// Create a new category
+export const createCategory = async (category) => {
+  try {
+    const response = await api.post("/categories/new", category);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating category:", error);
+    throw error;
+  }
+};
+
+// Delete a category
+export const deleteCategory = async (categoryId) => {
+  try {
+    const response = await api.delete(`/categories/${categoryId}/delete`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting category:", error);
     throw error;
   }
 };

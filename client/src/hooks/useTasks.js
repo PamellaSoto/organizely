@@ -11,47 +11,46 @@ export const useTasks = (showSnackbar) => {
 
   // load tasks on mount
   useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const data = await API.getTasks();
-        setTasks(data);
-      } catch (error) {
-        console.error(error);
-        showSnackbar({
-          message: "Erro ao carregar tarefas",
-          onUndo: null,
-          undoLabel: "",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
     loadTasks();
-  }, [showSnackbar]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Hooks for specific functionalities
+  const loadTasks = async () => {
+    try {
+      const data = await API.getTasks();
+      setTasks(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+      showSnackbar({ message: "Erro ao carregar tarefas", onUndo: null });
+      setIsLoading(false);
+    }
+  };
+
   const { handleDragEnd } = useDragAndDrop(getTasks, setTasks, showSnackbar);
   const { clearPending } = useMenuActions(getTasks, setTasks, showSnackbar);
 
-  // create new task
+  // create new task (local)
   const createNewTask = () => {
     const tempId = `temp-${Date.now()}`;
-    const tempTask = {
-      id: tempId,
-      description: "",
-      isEditing: true,
-      dayOfWeek: "backlog",
-      isCompleted: false,
-      priority: 0,
-      category: null,
-    };
-    setNewTasks((prev) => [tempTask, ...prev]);
+    setNewTasks((prev) => [
+      {
+        id: tempId,
+        description: "",
+        isEditing: true,
+        dayOfWeek: "backlog",
+        isCompleted: false,
+        priority: 0,
+        category: null,
+      },
+      ...prev,
+    ]);
   };
 
   const cancelNewTask = (tempId) => {
     setNewTasks((prev) => prev.filter((t) => t.id !== tempId));
   };
 
+  // save new task to backend
   const saveNewTask = async (tempId, description) => {
     const trimmed = description.trim();
     if (!trimmed) {
@@ -61,65 +60,92 @@ export const useTasks = (showSnackbar) => {
 
     try {
       const createdTask = await API.createTask({ description: trimmed });
+
       setNewTasks((prev) => prev.filter((t) => t.id !== tempId));
       setTasks((prev) => [createdTask, ...prev]);
+
       showSnackbar({
-        message: "Tarefa criada com sucesso!",
+        message: "Tarefa criada!",
         onUndo: async () => {
-          try {
-            await API.deleteTask(createdTask.id);
-            setTasks((prev) => prev.filter((t) => t.id !== createdTask.id));
-          } catch {
-            console.error("Failed to undo create");
-          }
+          await API.deleteTask(createdTask.id);
+          setTasks((prev) => prev.filter((t) => t.id !== createdTask.id));
         },
         undoLabel: "Desfazer",
       });
+
       createNewTask();
     } catch (error) {
-      console.error(error);
-      showSnackbar({
-        message: "Erro ao criar tarefa",
-        onUndo: null,
-        undoLabel: "",
-      });
+      console.error("Error creating task:", error);
+      showSnackbar({ message: "Erro ao criar tarefa", onUndo: null });
     }
   };
 
-  // update task
+  // update task (DTO)
   const updateTask = async (taskId, updated) => {
-    const text = (updated.description || "").trim();
-    if (text === "") return false;
+    if (!updated.description?.trim()) return false;
 
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return false;
+    const oldTask = tasks.find((t) => t.id === taskId);
+    if (!oldTask) return false;
+
+    // monta DTO válido para Spring
+    const payload = {
+      description: updated.description,
+      isCompleted: updated.isCompleted,
+      dayOfWeek: updated.dayOfWeek,
+      priority: Number(updated.priority),
+      category: updated.category ? updated.category.id || updated.category : null,
+    };
 
     try {
-      await API.updateTask(taskId, updated);
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, ...updated } : t))
-      );
+      const result = await API.updateTask(taskId, payload);
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? result : t)));
+
       showSnackbar({
         message: "Tarefa atualizada!",
         onUndo: async () => {
-          try {
-            await API.updateTask(taskId, task);
-            setTasks((prev) => prev.map((t) => (t.id === taskId ? task : t)));
-          } catch {
-            console.error("Failed to undo update");
-          }
+          const restoredPayload = {
+            description: oldTask.description,
+            isCompleted: oldTask.isCompleted,
+            dayOfWeek: oldTask.dayOfWeek,
+            priority: Number(oldTask.priority),
+            category: oldTask.category?.id || null,
+          };
+
+          const restored = await API.updateTask(taskId, restoredPayload);
+          setTasks((prev) => prev.map((t) => (t.id === taskId ? restored : t)));
         },
         undoLabel: "Desfazer",
       });
+
       return true;
-    } catch {
-      console.error("Failed to save task");
-      showSnackbar({
-        message: "Erro ao atualizar tarefa",
-        onUndo: null,
-        undoLabel: "",
-      });
+    } catch (error) {
+      console.error("Error updating task:", error);
+      showSnackbar({ message: "Erro ao atualizar tarefa", onUndo: null });
       return false;
+    }
+  };
+
+  // toggle complete
+  const toggleComplete = async (taskId) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const payload = {
+      description: task.description,
+      isCompleted: !task.isCompleted,
+      dayOfWeek: task.dayOfWeek,
+      priority: Number(task.priority),
+      category: task.category?.id || null,
+    };
+
+    try {
+      const result = await API.updateTask(taskId, payload);
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? result : t))
+      );
+    } catch (error) {
+      console.error("Error toggling complete:", error);
+      showSnackbar({ message: "Erro ao atualizar tarefa", onUndo: null });
     }
   };
 
@@ -132,45 +158,22 @@ export const useTasks = (showSnackbar) => {
 
     try {
       await API.deleteTask(taskId);
+
       showSnackbar({
         message: "Tarefa removida",
         onUndo: async () => {
-          try {
-            const restoredTask = await API.createTask(task);
-            setTasks((prev) => [restoredTask, ...prev]);
-          } catch {
-            console.error("Failed to undo delete");
-          }
+          const restored = await API.createTask({
+            description: task.description,
+          });
+
+          setTasks((prev) => [restored, ...prev]);
         },
         undoLabel: "Desfazer",
       });
-    } catch {
+    } catch (error) {
+      console.error("Error deleting task:", error);
       setTasks((prev) => [task, ...prev]);
-      showSnackbar({
-        message: "Erro ao remover tarefa",
-        onUndo: null,
-        undoLabel: "",
-      });
-    }
-  };
-
-  // toggle task complete
-  const toggleComplete = async (taskId) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
-
-    const updatedTask = { ...task, isCompleted: !task.isCompleted };
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
-
-    try {
-      await API.updateTask(taskId, updatedTask);
-    } catch {
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? task : t)));
-      showSnackbar({
-        message: "Erro ao atualizar tarefa",
-        onUndo: null,
-        undoLabel: "",
-      });
+      showSnackbar({ message: "Erro ao remover tarefa", onUndo: null });
     }
   };
 

@@ -1,4 +1,3 @@
-import TaskContainer from "./TaskContainer";
 import TaskItem from "./TaskItem";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -15,7 +14,7 @@ const TaskGrid = ({
     {
       id: "backlog",
       title: "Tarefas pendentes",
-      className: "row-start-1 row-end-5 col-start-1 col-end-2",
+      className: "row-start-1 row-end-5 col-start-1 col-end-2 w-[24vw]",
     },
     {
       id: "monday",
@@ -60,32 +59,32 @@ const TaskGrid = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-4 gap-3 grid-rows-4">
+      <div className="grid grid-cols-4 gap-3 grid-rows-4 h-full">
         {columns.map((col) => (
           <div
             key={col.id}
-            className={`bg-white rounded-lg p-3 ${col.className}`}
+            className={`bg-white rounded-lg p-3 ${col.className} flex flex-col`}
           >
+            <h2 className="text-lg font-bold mb-3">{col.title}</h2>
+
+            {/* new task with input (outside dnd) */}
+            {col.id === "backlog" &&
+              newTasks.map((task) => (
+                <TaskItem
+                  task={task}
+                  isEditing={true}
+                  onConfirmNew={onConfirmNew}
+                  onCancelNew={onCancelNew}
+                />
+              ))}
+
             <Droppable droppableId={col.id}>
               {(provided) => (
-                <TaskContainer
-                  title={col.title}
-                  innerRef={provided.innerRef}
-                  droppableProps={provided.droppableProps}
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex-1"
                 >
-                  {/* new task with input */}
-                  {col.id === "backlog" &&
-                    newTasks.map((task) => (
-                      <div key={task.id} className="mb-3">
-                        <TaskItem
-                          task={task}
-                          isEditing={true}
-                          onConfirmNew={onConfirmNew}
-                          onCancelNew={onCancelNew}
-                        />
-                      </div>
-                    ))}
-
                   {/* list all tasks by column id */}
                   {getTasksForColumn(col.id).map((task, index) => (
                     <Draggable
@@ -94,10 +93,14 @@ const TaskGrid = ({
                       index={index}
                     >
                       {(providedDrag, snapshotDrag) => (
-                        <div className="mb-3">
+                        <div
+                          ref={providedDrag.innerRef}
+                          {...providedDrag.draggableProps}
+                          {...providedDrag.dragHandleProps}
+                          className="mb-2"
+                        >
                           <TaskItem
                             task={task}
-                            provided={providedDrag}
                             snapshot={snapshotDrag}
                             onToggle={() => onToggleComplete(task.id)}
                             onEdit={() => onOpenEdit(task.id)}
@@ -107,7 +110,7 @@ const TaskGrid = ({
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                </TaskContainer>
+                </div>
               )}
             </Droppable>
           </div>

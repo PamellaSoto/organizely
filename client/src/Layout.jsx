@@ -9,11 +9,14 @@ import { useSnackbar } from "./hooks/useSnackbar";
 import { useModals } from "./hooks/useModals";
 import ArchiveModal from "./components/modal/ArchiveModal";
 import { useTheme } from "./hooks/useTheme";
+import { useCategories } from "./hooks/useCategories";
 
 const Layout = () => {
   const { snackbar, showSnackbar } = useSnackbar();
   const { modals, openModal, closeModal } = useModals();
   const { backgroundColor, changeBackgroundColor } = useTheme();
+  const { categories, createCategory, deleteCategory, fetchCategories } =
+    useCategories(showSnackbar);
   const {
     tasks,
     newTasks,
@@ -40,17 +43,13 @@ const Layout = () => {
   }
 
   return (
-    <div
-      className="flex flex-col h-dvh relative"
-      style={{ backgroundColor }}
-    >
-      <Header onOpenConfig={() => openModal("config")} backgroundColor={backgroundColor} />
+    <div className="flex flex-col h-dvh relative" style={{ backgroundColor }}>
+      <Header onOpenConfig={() => openModal("config")} />
       <main
         className="flex flex-col flex-1 gap-2 p-3 pt-0 overflow-y-hidden z-4 w-full relative top-23 transition-smooth"
         style={{ backgroundColor }}
       >
         <MenuActions
-          backgroundColor={backgroundColor}
           createTaskMethod={createNewTask}
           clearPendingMethod={clearPending}
           pomodoroMethod={() => alert("Em breve.")}
@@ -75,7 +74,11 @@ const Layout = () => {
             const ok = await updateTask(taskId, updated);
             if (ok) closeModal("editTask");
           }}
-          onDelete={deleteTask}
+          onDelete={async (taskId) => {
+            await deleteTask(taskId);
+            closeModal("editTask");
+          }}
+          categories={categories}
         />
 
         <ConfigModal
@@ -83,6 +86,10 @@ const Layout = () => {
           onClose={() => closeModal("config")}
           backgroundColor={backgroundColor}
           onChangeBackgroundColor={changeBackgroundColor}
+          categories={categories}
+          onCreateCategory={createCategory}
+          onDeleteCategory={deleteCategory}
+          onRefreshCategories={fetchCategories}
         />
 
         <ArchiveModal

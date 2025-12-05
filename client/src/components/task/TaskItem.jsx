@@ -21,7 +21,10 @@ const TaskItem = ({
     isCompleted,
     priority,
     category,
-  } = task;
+  } = task || {};
+
+  const categoryName =
+    category && typeof category === "object" ? category.name : "";
   const isDragging = snapshot?.isDragging;
 
   useEffect(() => {
@@ -46,7 +49,7 @@ const TaskItem = ({
 
   if (isEditing) {
     return (
-      <div className="bg-white rounded-xl px-3 py-2 border border-tblue">
+      <div className="bg-white rounded-xl px-3 py-2 border border-tblue mb-2">
         <input
           ref={inputRef}
           type="text"
@@ -64,7 +67,6 @@ const TaskItem = ({
   // Render normal task item
   return (
     <div
-      ref={provided?.innerRef}
       {...provided?.draggableProps}
       {...provided?.dragHandleProps}
       className={[
@@ -102,8 +104,10 @@ const TaskItem = ({
         {/* description and category */}
         <div className="w-11/12 flex flex-col justify-start">
           <h3>{taskDescription}</h3>
-          {category != "" && (
-            <p className="text-[0.85em] font-semibold text-tgray">{category}</p>
+          {categoryName && (
+            <p className="text-[0.85em] font-semibold text-tgray">
+              {categoryName}
+            </p>
           )}
         </div>
       </div>

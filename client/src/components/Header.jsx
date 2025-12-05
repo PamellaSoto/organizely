@@ -7,9 +7,9 @@ import {
   HiOutlineCog,
 } from "react-icons/hi";
 
-const Header = () => {
+const Header = ({ onOpenConfig, backgroundColor }) => {
   return (
-    <header className="bg-gray-200 flex flex-row items-center justify-between border-b border-tgray/30 p-3 fixed top-0 right-0 w-full z-3">
+    <header className="flex flex-row items-center justify-between border-b border-gray-900/10 p-3 fixed top-0 right-0 w-full z-3" style={{ backgroundColor }}>
       <a href="https://github.com/PamellaSoto/organizely" target="_blank">
         <img
           className="hidden md:block h-16"
@@ -39,13 +39,14 @@ const Header = () => {
           </a>
         </p>
         <div className="flex gap-8">
-          <a  className="menu-button" 
-              href="https://github.com/PamellaSoto/organizely/blob/main/README.md#how-to-use"
-              target="_blank">
+          <a
+            className="menu-button"
+            href="https://github.com/PamellaSoto/organizely/blob/main/README.md#how-to-use"
+            target="_blank"
+          >
             <HiOutlineQuestionMarkCircle size={24} /> Ajuda
           </a>
-          {/* TODO: abre um modal dedicado a customização e organização*/}
-          <button className="menu-button">
+          <button onClick={onOpenConfig} className="menu-button">
             <HiOutlineCog size={24} /> Configurações
           </button>
         </div>
