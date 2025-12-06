@@ -40,7 +40,7 @@ The main goal of this project is to offer a **clear, structured, and visually in
 | Layer | Technology |
 |:------|:------------|
 | Backend | **Java**, **Spring Boot**, **JPA**, **PostgreSQL** |
-| Frontend | **React**, **Tailwind CSS**, **Axios**, **Yup** |
+| Frontend | **React**, **Tailwind CSS**, **Axios**, **DnD** |
 | Deployment | **Render** |
 
 
@@ -57,28 +57,22 @@ The main goal of this project is to offer a **clear, structured, and visually in
 
 | Method | Path | Description |	Body |
 |:-------|:-----|:------------|:-----|
-| GET | /api/tasks | Get all tasks | — |
-| POST | /api/tasks | Create a task | { "desc": "..." } |
-| PUT | /api/tasks/{id} | Update task | { "desc": "...", "completed": true } |
-| DELETE | /api/tasks/{id} | Delete task | — |
+| GET | /api/tasks/all | Get all tasks | — |
+| POST | /api/tasks/new | Create a new task | { "desc": "..." } |
+| PUT | /api/tasks/{id}/edit | Update task | { "desc": "...", "completed": true } |
+| DELETE | /api/tasks/{id}/delete | Delete task | — |
 
 ### Categories
 
 
-### Auth
-
 | Method | Path | Description |	Body |
 |:-------|:-----|:------------|:-----|
-| POST | /api/auth/register | Create a new account | { "username": "user", "email": "a@b.com", "password": "1234" } |
-| POST | /api/auth/login | Log in and get token | { "username": "user", "password": "1234" } |
-> Response example:
-```
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI..."
-}
-```
+| GET | /api/categories/all | Get all categories | — |
+| POST | /api/categories/new | Create a new category | { "name": "..." } |
+| DELETE | /api/categories/{id}/delete | Delete category | — |
 
-## How to Use
+
+## How to Use (PT-BR)
 
 
 --- 
