@@ -1,8 +1,8 @@
 import axios from "axios";
 
+const BASE_URL = import.meta.env?.VITE_API_URL;
 const api = axios.create({
-  //TEMPORARY URL FOR DEVELOPMENT
-  baseURL: `http://localhost:612/api/`,
+  baseURL: `${BASE_URL.replace(/\/$/, "")}/api`,
 });
 
 // ========== TASK CRUD OPERATIONS ==========
@@ -34,7 +34,7 @@ export const updateTask = async (taskId, task) => {
     const response = await api.put(`/tasks/${taskId}/edit`, task);
     return response.data;
   } catch (error) {
-    console.error('Error updating task:', error);
+    console.error("Error updating task:", error);
     throw error;
   }
 };
