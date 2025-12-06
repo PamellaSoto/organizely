@@ -19,6 +19,7 @@ const TaskItem = ({
   const {
     description: taskDescription,
     isCompleted,
+    isArchived,
     priority,
     category,
   } = task || {};
@@ -58,13 +59,14 @@ const TaskItem = ({
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           placeholder="Digite a descrição da tarefa..."
+          maxLength={70}
           className="w-full outline-none text-sm"
         />
       </div>
     );
   }
 
-  // Render normal task item
+  if (isArchived) return null;
   return (
     <div
       {...provided?.draggableProps}

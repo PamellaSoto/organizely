@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { HiX } from "react-icons/hi";
 
-const Modal = ({ visible, onClose, title, children }) => {
+const Modal = ({ visible, onClose, title, children, classname }) => {
   useEffect(() => {
     if (!visible) return;
 
@@ -29,7 +29,7 @@ const Modal = ({ visible, onClose, title, children }) => {
         aria-hidden={!visible}
       />
 
-      <div className="relative bg-white rounded-lg shadow-lg w-full max-w-xl mx-4 p-6 z-10">
+      <div className={`relative bg-white rounded-lg shadow-lg w-full max-w-xl mx-4 p-6 z-10 ${classname}`}>
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 cursor-pointer hover:text-gray-800 hover:font-semibold"

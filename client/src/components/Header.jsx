@@ -1,5 +1,4 @@
 import LogoDesktop from "/desktop_logo.png";
-import LogoMobile from "/mobile_logo.png";
 
 import {
   HiOutlineDotsVertical,
@@ -14,11 +13,6 @@ const Header = ({ onOpenConfig, backgroundColor }) => {
         <img
           className="hidden md:block h-16"
           src={LogoDesktop}
-          alt="Organizely - organize sua semana, simplifique sua vida."
-        />
-        <img
-          className="md:hidden h-10"
-          src={LogoMobile}
           alt="Organizely - organize sua semana, simplifique sua vida."
         />
       </a>

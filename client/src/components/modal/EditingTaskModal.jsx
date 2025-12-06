@@ -5,10 +5,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineTrash,
   HiOutlineFolderDownload,
-  HiOutlineBan,
-  HiCheck,
   HiX,
-  HiPlus,
 } from "react-icons/hi";
 import { LuCircle, LuCircleCheckBig } from "react-icons/lu";
 
@@ -54,6 +51,7 @@ const EditingTaskModal = ({
   task,
   onSave,
   onDelete,
+  onArchive,
   categories = [],
 }) => {
   const [description, setDescription] = useState("");
@@ -105,6 +103,10 @@ const EditingTaskModal = ({
 
   const handleDelete = () => {
     onDelete?.(task?.id);
+  };
+
+  const handleArchive = () => {
+    onArchive?.(task?.id);
   };
 
   return (
@@ -232,7 +234,7 @@ const EditingTaskModal = ({
               </div>
               <div className="flex gap-3">
                 <ActionButton
-                  onClick={handleSave}
+                  onClick={handleArchive}
                   iconLabel={<HiOutlineFolderDownload size={16} />}
                   label="Arquivar"
                   className="bg-tgray/20"

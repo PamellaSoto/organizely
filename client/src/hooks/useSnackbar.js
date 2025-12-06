@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 
 export const useSnackbar = () => {
   const [snackbar, setSnackbar] = useState({
@@ -9,14 +9,17 @@ export const useSnackbar = () => {
   });
   const snackbarTimerRef = useRef(null);
 
-  const showSnackbar = ({ message, onUndo, undoLabel = "Desfazer" }) => {
-    setSnackbar({ visible: true, message, onUndo, undoLabel });
-    if (snackbarTimerRef.current) clearTimeout(snackbarTimerRef.current);
-    snackbarTimerRef.current = setTimeout(() => {
-      setSnackbar((s) => ({ ...s, visible: false }));
-      snackbarTimerRef.current = null;
-    }, 5000);
-  };
+  const showSnackbar = useCallback(
+    ({ message, onUndo, undoLabel = "Desfazer" }) => {
+      setSnackbar({ visible: true, message, onUndo, undoLabel });
+      if (snackbarTimerRef.current) clearTimeout(snackbarTimerRef.current);
+      snackbarTimerRef.current = setTimeout(() => {
+        setSnackbar((s) => ({ ...s, visible: false }));
+        snackbarTimerRef.current = null;
+      }, 5000);
+    },
+    []
+  );
 
   return { snackbar, showSnackbar };
 };

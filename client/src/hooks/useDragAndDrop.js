@@ -56,7 +56,7 @@ export const useDragAndDrop = (getTasks, setTasks, showSnackbar) => {
       console.error("Failed to update task:", error);
       setTasks(tasks);
       showSnackbar({
-        message: "Erro ao mover tarefa",
+        message: "Erro ao mover tarefa.",
         onUndo: null,
       });
     }

@@ -10,6 +10,8 @@ import { useModals } from "./hooks/useModals";
 import ArchiveModal from "./components/modal/ArchiveModal";
 import { useTheme } from "./hooks/useTheme";
 import { useCategories } from "./hooks/useCategories";
+import { useArchivedTasks } from "./hooks/useArchivedTasks";
+import { useEffect } from "react";
 
 const Layout = () => {
   const { snackbar, showSnackbar } = useSnackbar();
@@ -29,7 +31,24 @@ const Layout = () => {
     deleteTask,
     handleDragEnd,
     clearPending,
+    archiveTask,
+    archiveCompletedTasks,
+    reloadTasks,
   } = useTasks(showSnackbar);
+  const {
+    archivedTasks,
+    isLoading: archivedLoading,
+    loadArchivedTasks,
+    unarchiveTask,
+    unarchiveMultiple,
+    deleteTask: deleteArchivedTask,
+    deleteMultiple,
+    restoreToBacklog,
+  } = useArchivedTasks(showSnackbar);
+
+  useEffect(() => {
+    loadArchivedTasks();
+  }, [loadArchivedTasks]);
 
   if (isLoading) {
     return (
@@ -53,7 +72,12 @@ const Layout = () => {
           createTaskMethod={createNewTask}
           clearPendingMethod={clearPending}
           pomodoroMethod={() => alert("Em breve.")}
+          archiveCompletedTasks={async () => {
+            await archiveCompletedTasks();
+            await loadArchivedTasks();
+          }}
           onOpenArchive={() => openModal("archive")}
+          archivedTasks={archivedTasks}
         />
 
         <TaskGrid
@@ -78,6 +102,11 @@ const Layout = () => {
             await deleteTask(taskId);
             closeModal("editTask");
           }}
+          onArchive={async (taskId) => {
+            await archiveTask(taskId);
+            await loadArchivedTasks();
+            closeModal("editTask");
+          }}
           categories={categories}
         />
 
@@ -95,6 +124,30 @@ const Layout = () => {
         <ArchiveModal
           visible={modals.archive.visible}
           onClose={() => closeModal("archive")}
+          archivedTasks={archivedTasks}
+          isLoading={archivedLoading}
+          onLoadTasks={loadArchivedTasks}
+          onUnarchiveTask={async (taskId) => {
+            await unarchiveTask(taskId);
+            await reloadTasks();
+            await loadArchivedTasks();
+          }}
+          onUnarchiveMultiple={async (ids) => {
+            await unarchiveMultiple(ids);
+            await reloadTasks();
+            await loadArchivedTasks();
+          }}
+          onDeleteTask={deleteArchivedTask}
+          onDeleteMultiple={async (ids) => {
+            await deleteMultiple(ids);
+            await loadArchivedTasks();
+            await reloadTasks();
+          }}
+          onRestoreToBacklog={async (ids) => {
+            await restoreToBacklog(ids);
+            await reloadTasks();
+            await loadArchivedTasks();
+          }}
         />
 
         <Snackbar

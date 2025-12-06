@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { HiX } from "react-icons/hi";
 import ActionButton from "../ActionButton";
 
 const Dropdown = ({

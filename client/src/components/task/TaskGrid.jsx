@@ -14,7 +14,7 @@ const TaskGrid = ({
     {
       id: "backlog",
       title: "Tarefas pendentes",
-      className: "row-start-1 row-end-5 col-start-1 col-end-2 w-[24vw]",
+      className: "row-start-1 row-end-5 col-start-1 col-end-2",
     },
     {
       id: "monday",
@@ -54,7 +54,7 @@ const TaskGrid = ({
   ];
 
   const getTasksForColumn = (columnId) => {
-    return tasks.filter((t) => t.dayOfWeek === columnId);
+    return tasks.filter((t) => !t.isArchived && t.dayOfWeek === columnId);
   };
 
   return (
