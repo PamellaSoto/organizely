@@ -71,6 +71,7 @@ const TaskGrid = ({
             {col.id === "backlog" &&
               newTasks.map((task) => (
                 <TaskItem
+                  key={task.id}
                   task={task}
                   isEditing={true}
                   onConfirmNew={onConfirmNew}

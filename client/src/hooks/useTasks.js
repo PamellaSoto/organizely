@@ -60,10 +60,13 @@ export const useTasks = (showSnackbar) => {
       cancelNewTask(tempId);
       return;
     }
+
     try {
       const createdTask = await API.createTask({ description: trimmed });
       setNewTasks((prev) => prev.filter((t) => t.id !== tempId));
       setTasks((prev) => [createdTask, ...prev]);
+      createNewTask();
+
       showSnackbar?.({
         message: "Tarefa criada!",
         onUndo: async () => {
@@ -72,7 +75,6 @@ export const useTasks = (showSnackbar) => {
         },
         undoLabel: "Desfazer",
       });
-      createNewTask();
     } catch (error) {
       console.error("Error creating task:", error);
       showSnackbar?.({ message: "Erro ao criar tarefa.", onUndo: null });
