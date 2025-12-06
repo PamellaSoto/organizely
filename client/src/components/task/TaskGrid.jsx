@@ -7,6 +7,9 @@ const TaskGrid = ({
   onToggleComplete,
   onDragEnd,
   onOpenEdit,
+  onDeleteTask,
+  onArchiveTask,
+  onDuplicateTask,
   onConfirmNew,
   onCancelNew,
 }) => {
@@ -105,6 +108,9 @@ const TaskGrid = ({
                             snapshot={snapshotDrag}
                             onToggle={() => onToggleComplete(task.id)}
                             onEdit={() => onOpenEdit(task.id)}
+                            onDelete={() => onDeleteTask(task.id)}
+                            onArchive={() => onArchiveTask(task.id)}
+                            onDuplicate={() => onDuplicateTask(task.id)}
                           />
                         </div>
                       )}

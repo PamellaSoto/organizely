@@ -109,6 +109,10 @@ const EditingTaskModal = ({
     onArchive?.(task?.id);
   };
 
+  if (!task) {
+    return null;
+  }
+
   return (
     <Modal visible={visible} onClose={onClose}>
       <div className="flex flex-col gap-4">
@@ -243,11 +247,7 @@ const EditingTaskModal = ({
               </div>
             </div>
           </div>
-        ) : (
-          <div>
-            <p className="text-gray-500">Carregando tarefa...</p>
-          </div>
-        )}
+        ) : null}
       </div>
     </Modal>
   );

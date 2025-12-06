@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import ActionButton from "../ActionButton";
 
 const Dropdown = ({
@@ -13,14 +13,28 @@ const Dropdown = ({
   renderButton,
   renderOption,
   customFooter,
+  isOpen: controlledIsOpen,
+  onClose,
+  position,
+  noButton = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen =
+    controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
+  const setIsOpen = useMemo(() => {
+    return controlledIsOpen !== undefined
+      ? (v) => {
+          if (!v) onClose?.();
+        }
+      : setInternalOpen;
+  }, [controlledIsOpen, onClose]);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        onClose?.();
       }
     };
 
@@ -31,7 +45,7 @@ const Dropdown = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose, setIsOpen]);
 
   const handleSelect = (optionValue) => {
     onChange(optionValue);
@@ -56,36 +70,48 @@ const Dropdown = ({
         )}
       </div>
       <div className="relative">
-        {renderButton ? (
-          <div onClick={() => setIsOpen(!isOpen)}>
-            {renderButton({
-              isOpen,
-              value,
-              selectedOption,
-              onClear: handleClear,
-            })}
-          </div>
-        ) : (
-          <ActionButton
-            onClick={() => setIsOpen(!isOpen)}
-            className={`w-full border flex-row-reverse justify-between hover:border-gray-400 
-              ${value ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-white text-gray-700 border-gray-300"}
+        {!noButton &&
+          (renderButton ? (
+            <div onClick={() => setIsOpen(!isOpen)}>
+              {renderButton({
+                isOpen,
+                value,
+                selectedOption,
+                onClear: handleClear,
+              })}
+            </div>
+          ) : (
+            <ActionButton
+              onClick={() => setIsOpen(!isOpen)}
+              className={`w-full border flex-row-reverse justify-between hover:border-gray-400 
+              ${
+                value
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : "bg-white text-gray-700 border-gray-300"
+              }
             `}
-            label={selectedOption?.label || placeholder}
-            iconLabel={
-              <span
-                className={`transition-smooth ${
-                  isOpen ? "transform rotate-180" : ""
-                }`}
-              >
-                {optionalIcon}
-              </span>
-            }
-          />
-        )}
+              label={selectedOption?.label || placeholder}
+              iconLabel={
+                <span
+                  className={`transition-smooth ${
+                    isOpen ? "transform rotate-180" : ""
+                  }`}
+                >
+                  {optionalIcon}
+                </span>
+              }
+            />
+          ))}
         {isOpen && (
           <div
-            className={`absolute top-full left-0 w-full mt-1 bg-white border border-tgray/30 rounded-lg shadow-lg z-10 ${className} p-2`}
+            className={`${position ? "fixed" : "absolute"} ${
+              position ? "" : "top-full left-0 w-full mt-1"
+            } bg-white border border-tgray/30 rounded-lg shadow-lg z-10 ${className} p-2`}
+            style={
+              position
+                ? { top: position.y, left: position.x, minWidth: 180 }
+                : {}
+            }
           >
             {options.map((option) => (
               <div key={option.value}>

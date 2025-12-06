@@ -6,19 +6,7 @@ const api = axios.create({
 });
 
 // ========== TASK CRUD OPERATIONS ==========
-
-// Create a new task
-export const createTask = async (task) => {
-  try {
-    const response = await api.post("/tasks/new", task);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating task:", error);
-    throw error;
-  }
-};
-
-// Get all tasks
+// get all tasks
 export const getTasks = async () => {
   try {
     const response = await api.get("/tasks/all");
@@ -29,7 +17,18 @@ export const getTasks = async () => {
   }
 };
 
-// Update an existing task
+// create a new task
+export const createTask = async (task) => {
+  try {
+    const response = await api.post("/tasks/new", task);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating task:", error);
+    throw error;
+  }
+};
+
+// update an existing task
 export const updateTask = async (taskId, task) => {
   try {
     const response = await api.put(`/tasks/${taskId}/edit`, task);
@@ -40,7 +39,7 @@ export const updateTask = async (taskId, task) => {
   }
 };
 
-// Delete a task
+// delete a task
 export const deleteTask = async (taskId) => {
   try {
     const response = await api.delete(`/tasks/${taskId}/delete`);
@@ -52,8 +51,7 @@ export const deleteTask = async (taskId) => {
 };
 
 // ========== CATEGORY CRUD OPERATIONS ==========
-
-// Get all categories
+// get all categories
 export const getCategories = async () => {
   try {
     const response = await api.get("/categories/all");
@@ -64,7 +62,7 @@ export const getCategories = async () => {
   }
 };
 
-// Create a new category
+// create a new category
 export const createCategory = async (category) => {
   try {
     const response = await api.post("/categories/new", category);
@@ -75,7 +73,7 @@ export const createCategory = async (category) => {
   }
 };
 
-// Delete a category
+// delete a category
 export const deleteCategory = async (categoryId) => {
   try {
     const response = await api.delete(`/categories/${categoryId}/delete`);

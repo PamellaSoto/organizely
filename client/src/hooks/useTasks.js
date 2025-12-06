@@ -11,7 +11,7 @@ export const useTasks = (showSnackbar) => {
   const getTasks = useCallback(() => tasks, [tasks]);
   const didInitRef = useRef(false);
 
-  // load tasks on mount (evita chamadas duplicadas em StrictMode)
+  // load tasks on mount
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
@@ -171,6 +171,29 @@ export const useTasks = (showSnackbar) => {
     }
   };
 
+  const duplicateTask = async (taskId) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    try {
+      const created = await API.createTask({ description: task.description });
+      const payload = buildTaskPayload(task);
+      const updated = await API.updateTask(created.id, payload);
+      setTasks((prev) => [updated, ...prev]);
+      showSnackbar?.({
+        message: "Tarefa duplicada!",
+        onUndo: async () => {
+          await API.deleteTask(updated.id);
+          setTasks((prev) => prev.filter((t) => t.id !== updated.id));
+        },
+        undoLabel: "Desfazer",
+      });
+    } catch (error) {
+      console.error("Error duplicating task:", error);
+      showSnackbar?.({ message: "Erro ao duplicar tarefa.", onUndo: null });
+    }
+  };
+
   return {
     tasks,
     newTasks,
@@ -185,6 +208,7 @@ export const useTasks = (showSnackbar) => {
     clearPending,
     archiveTask,
     archiveCompletedTasks,
+    duplicateTask,
     reloadTasks: loadTasks,
   };
 };

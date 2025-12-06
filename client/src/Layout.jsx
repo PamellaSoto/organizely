@@ -33,6 +33,7 @@ const Layout = () => {
     clearPending,
     archiveTask,
     archiveCompletedTasks,
+    duplicateTask,
     reloadTasks,
   } = useTasks(showSnackbar);
   const {
@@ -86,6 +87,16 @@ const Layout = () => {
           onToggleComplete={toggleComplete}
           onDragEnd={handleDragEnd}
           onOpenEdit={(taskId) => openModal("editTask", taskId)}
+          onDeleteTask={async (taskId) => {
+            await deleteTask(taskId);
+          }}
+          onArchiveTask={async (taskId) => {
+            await archiveTask(taskId);
+            await loadArchivedTasks();
+          }}
+          onDuplicateTask={async (taskId) => {
+            await duplicateTask(taskId);
+          }}
           onConfirmNew={saveNewTask}
           onCancelNew={cancelNewTask}
         />

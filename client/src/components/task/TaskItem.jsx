@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { LuCircle, LuCircleCheckBig } from "react-icons/lu";
+import Dropdown from "../modal/Dropdown";
 
 const TaskItem = ({
   task,
@@ -8,6 +9,9 @@ const TaskItem = ({
   snapshot,
   onToggle,
   onEdit,
+  onDelete,
+  onArchive,
+  onDuplicate,
   isEditing = false,
   onConfirmNew,
   onCancelNew,
@@ -15,6 +19,8 @@ const TaskItem = ({
   const [hovered, setHovered] = useState(false);
   const [description, setDescription] = useState(task.description || "");
   const inputRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
 
   const {
     description: taskDescription,
@@ -80,6 +86,12 @@ const TaskItem = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => onEdit(task.id)}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        // Open only for non-archived tasks
+        setMenuPos({ x: e.clientX, y: e.clientY });
+        setMenuOpen(true);
+      }}
     >
       <div
         className={`flex gap-2 items-center transition-smooth transform ${
@@ -144,6 +156,33 @@ const TaskItem = ({
       >
         <HiOutlinePencilAlt size={20} />
       </button>
+
+      {menuOpen && (
+        <div
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Dropdown
+            noButton
+            isOpen={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            position={menuPos}
+            className="min-w-[180px]"
+            options={[
+              { label: "Editar", value: "edit" },
+              { label: "Duplicar", value: "duplicate" },
+              { label: "Arquivar", value: "archive" },
+              { label: "Excluir", value: "delete" },
+            ]}
+            onChange={(val) => {
+              if (val === "edit") onEdit?.(task.id);
+              else if (val === "delete") onDelete?.(task.id);
+              else if (val === "archive") onArchive?.(task.id);
+              else if (val === "duplicate") onDuplicate?.(task.id);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
