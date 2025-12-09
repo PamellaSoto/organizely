@@ -4,6 +4,7 @@ import MenuActions from "./components/MenuActions";
 import EditingTaskModal from "./components/modal/EditingTaskModal";
 import ConfigModal from "./components/modal/ConfigModal";
 import Snackbar from "./components/Snackbar";
+import DailyAdviceBar from "./components/DailyAdviceBar";
 import { useTasks } from "./hooks/useTasks";
 import { useSnackbar } from "./hooks/useSnackbar";
 import { useModals } from "./hooks/useModals";
@@ -65,6 +66,7 @@ const Layout = () => {
   return (
     <div className="flex flex-col h-dvh relative" style={{ backgroundColor }}>
       <Header onOpenConfig={() => openModal("config")} />
+      <DailyAdviceBar />
       <main
         className="flex flex-col flex-1 gap-2 p-3 pt-0 overflow-y-hidden z-4 w-full relative top-23 transition-smooth"
         style={{ backgroundColor }}
