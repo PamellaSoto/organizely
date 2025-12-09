@@ -32,7 +32,7 @@ The main goal of this project is to offer a **clear, structured, and visually in
 - Delete all completed tasks automatically.
 - Customize application background with preset colors and (soon) custom images.
 - (coming soon) Pomodoro addon for focus.
-- Integration with ZenQuotes API for daily motivation.
+- Integration with Advice Slip JSON API.
 
 
 ## Technologies Used
@@ -73,6 +73,60 @@ The main goal of this project is to offer a **clear, structured, and visually in
 
 
 ## How to Use (PT-BR)
+
+### ✅ Criar uma tarefa
+- Clique no botão **"Adicionar tarefa"** para criar uma nova tarefa.
+- Preencha as informações e salve pressionando **"Enter"**.
+
+---
+
+### ✏️ Editar, duplicar ou remover tarefas
+Você pode gerenciar suas tarefas de duas formas:
+
+- Clique com o **botão direito do mouse** sobre o card para abrir o **menu rápido**:
+  - Editar
+  - Duplicar
+  - Deletar
+  - Remover
+
+- Ou passe o **mouse sobre o card** para acessar os atalhos:
+  - ✏️ Editar  
+  - ✅ Marcar como concluída
+
+---
+
+### 🔄 Mover tarefas entre áreas
+- **Tarefas pendentes** podem ser movidas para o **Backlog**.
+- **Tarefas concluídas** podem ser **arquivadas**.
+
+---
+
+### 🗄️ Gerenciar tarefas arquivadas
+No **modal de Tarefas Arquivadas**, você pode:
+- 🗑️ Deletar tarefas permanentemente  
+- ♻️ Restaurar tarefas arquivadas  
+
+---
+
+### 🧩 Modal de edição de tarefas
+Dentro do modal de edição, você pode:
+- Alterar o **nome da tarefa**
+- Adicionar ou modificar **categoria**
+- Definir **prioridade**
+- Marcar como **concluída**
+- Mover a tarefa entre:
+  - Backlog
+  - Dias da semana
+
+---
+
+### 🖱️ Arrastar e soltar (Drag & Drop)
+- Você pode **arrastar os cartões** entre os containers para organizar sua semana.
+
+---
+
+### 🧭 Modo de visualização expandido
+- Para ter mais espaço na tela, **arraste o mouse para baixo** e a interface será expandida.
 
 
 --- 
