@@ -191,6 +191,7 @@ const EditingTaskModal = ({
                 showClearButton={categoryId !== null}
                 options={categoryOptions}
                 placeholder="Nenhuma"
+                className="max-h-48 overflow-y-scroll scrollbar"
                 renderButton={({ value, onClear }) => (
                   <button
                     className={`

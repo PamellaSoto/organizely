@@ -87,7 +87,7 @@ const TaskGrid = ({
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="flex-1"
+                  className="flex-1 overflow-y-scroll scrollbar pr-2"
                 >
                   {/* list all tasks by column id */}
                   {getTasksForColumn(col.id).map((task, index) => (
