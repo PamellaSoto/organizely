@@ -1,22 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-urbanist: "Urbanist", sans-serif;
   --font-outfit: "Outfit", sans-serif;
-  --color-tblack: #202126;  
-  --color-tblue: #2A86FF;
-  --color-tlightgray: #DEDEDE;
+  --color-tblack: #202126;
+  --color-tblue: #2a86ff;
+  --color-tlightgray: #dedede;
   --color-tgray: #818181;
   --color-ttransparentgray: #d8d9df41;
 
   --color-tgreen: #008547;
-  --color-torange: #8F5300;
-  --color-tred: #AA0303;
-  --color-tgreenlight: #CBF4C9;
-  --color-tyellowlight: #FFF2B1;
-  --color-tredlight: #FFCCC9;
-
+  --color-torange: #8f5300;
+  --color-tred: #aa0303;
+  --color-tgreenlight: #cbf4c9;
+  --color-tyellowlight: #fff2b1;
+  --color-tredlight: #ffccc9;
 }
 
 @layer base {
@@ -24,7 +23,12 @@
     font-family: var(--font-urbanist);
     letter-spacing: 0.015rem;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-outfit);
     color: var(--color-tblack);
   }
@@ -37,7 +41,6 @@
     font-size: 0.95rem;
     font-weight: 500;
   }
-
 }
 .transition-smooth {
   @apply transition-all duration-300 ease-in-out;
@@ -49,18 +52,57 @@
   @apply text-tblue;
 }
 
-
 .scrollbar::-webkit-scrollbar {
   width: 2px;
   height: 4px;
 }
 
 .scrollbar::-webkit-scrollbar-track {
-  background: rgba(216, 217, 223, .25); 
+  background: rgba(216, 217, 223, 0.25);
   border-radius: 8px;
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
   background: #a9a9ab6f;
   border-radius: 8px;
+}
+
+@layer utilities {
+  @keyframes slide-in-left-bounce {
+    0% {
+      transform: translateX(-120%);
+      opacity: 0;
+    }
+    80% {
+      transform: translateX(8px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-down-bounce {
+    0% {
+      transform: translateY(-120%);
+      opacity: 0;
+    }
+    80% {
+      transform: translateY(6px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-snackbar-in {
+    animation: slide-in-left-bounce 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-advicebar-in {
+    animation: slide-in-down-bounce 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
